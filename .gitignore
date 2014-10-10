@@ -35,7 +35,7 @@ release.properties
 dist/*
 lib_managed/
 src_managed/
-*/project/*
+project/
 project/plugins/project/
 
 # Scala-IDE specific
