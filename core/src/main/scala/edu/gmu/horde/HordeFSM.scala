@@ -17,10 +17,11 @@ case object Stopped extends HordeFSMState
 
 sealed trait HordeFSMData
 case object Uninitialized extends HordeFSMData
-case class EnvironmentData(env: Environment) extends HordeFSMData
+case class EnvironmentData(env: ActorRef) extends HordeFSMData
 case object Halt extends HordeFSMData
 
-final case class Scenario(name: String)
+case class Scenario(name: String)
+case class SetEnvironment(env: ActorRef)
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   import HordeFSM.logger
@@ -32,7 +33,10 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       goto(Idle)
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Now running {}", name)
-      goto(Running) using new EnvironmentData(null)
+      val root = context.actorOf(Props[Root])
+      val env = context.actorOf(Props[Environment])
+      root ! SetEnvironment(env)
+      goto(Running) using new EnvironmentData(env)
   }
 
   when(Running, stateTimeout = 10 seconds) {
