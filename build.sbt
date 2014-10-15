@@ -14,4 +14,5 @@ lazy val ui = project
   .dependsOn(core)
 
 lazy val zerg = project
+  .aggregate(core)
   .dependsOn(core)

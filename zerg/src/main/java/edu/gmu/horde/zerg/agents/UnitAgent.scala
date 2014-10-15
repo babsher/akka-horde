@@ -1,10 +1,8 @@
-package edu.gmu.zergHorde.agents
+package edu.gmu.horde.zerg.agents
 
-import akka.actor._
-import akka.actor.FSM
-import akka.actor.FSM._
+import akka.actor.{FSM, _}
+
 import scala.concurrent.duration._
-import scala.concurrent.duration.Duration
 
 object UnitAgent {
   trait States
@@ -20,7 +18,7 @@ object UnitAgent {
 }
 
 class UnitAgent extends Actor with FSM[UnitAgent.States, UnitAgent.Features] {
-  import UnitAgent._
+  import edu.gmu.horde.zerg.agents.UnitAgent._
 
   startWith(Start, Uninitialized)
 

@@ -1,4 +1,4 @@
-package edu.gmu.zergHorde.env;
+package edu.gmu.horde.zerg.env;
 
 import jnibwapi.*;
 
