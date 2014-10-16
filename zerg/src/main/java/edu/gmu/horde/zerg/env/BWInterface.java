@@ -82,7 +82,7 @@ public class BWInterface {
         @Override
         public void connected() {
             this.bwInterface.connected.set(true);
-            System.out.println("BW Interface Connected!");
+            log.info("BW Interface Connected!");
         }
 
         @Override
@@ -95,7 +95,7 @@ public class BWInterface {
             bwInterface.commands.clear();
             bwInterface.newUnits.clear();
             bwInterface.hasWinner.set(false);
-            System.out.println("Match Started");
+            log.info("Match Started");
         }
 
         @Override
