@@ -1,6 +1,10 @@
 package edu.gmu.horde.zerg.env;
 
+import akka.actor.ActorRef;
+import edu.gmu.horde.zerg.OnFrame;
 import jnibwapi.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Queue;
@@ -19,8 +23,10 @@ public class BWInterface {
     public final Map<Integer, Unit> enemyUnits;
     public final Queue<Integer> newUnits;
     public final Queue<UnitCommand> commands;
+    public final ActorRef env;
 
-    public BWInterface() {
+    public BWInterface(ActorRef e) {
+        env = e;
         hasWinner = new AtomicBoolean(false);
         commands = new ConcurrentLinkedQueue<>();
         newUnits = new ConcurrentLinkedQueue<>();
@@ -60,6 +66,7 @@ public class BWInterface {
     private static class Reader implements Runnable, BWAPIEventListener {
         private final JNIBWAPI bwapi;
         private final BWInterface bwInterface;
+        private static final Logger log = LoggerFactory.getLogger(Reader.class);
 
         public Reader(BWInterface bwInterface) {
             this.bwInterface = bwInterface;
@@ -98,6 +105,8 @@ public class BWInterface {
             while(!bwInterface.commands.isEmpty()) {
                 bwapi.issueCommand(bwInterface.commands.poll());
             }
+
+            bwInterface.env.tell(new OnFrame(), null);
         }
 
         @Override
@@ -114,8 +123,7 @@ public class BWInterface {
         @Override
         public void unitShow(int unitID) {
             Unit u = bwapi.getUnit(unitID);
-            System.out.println("shown " + u.getType().getName() + " at " + u.getPosition());
-            bwapi.getMap();
+            log.trace("shown %s at %s ", u.getType().getName(), u.getPosition());
             if(bwapi.getEnemies().contains(u.getPlayer())) {
                 bwInterface.enemyUnits.put(unitID, u);
             }
@@ -124,18 +132,18 @@ public class BWInterface {
         @Override
         public void unitHide(int unitID) {
             bwInterface.enemyUnits.remove(unitID);
-            System.out.println("hide " + unitID);
+            log.trace("hide %s", unitID);
         }
 
         @Override
         public void unitCreate(int unitID) {
             Unit u = bwapi.getUnit(unitID);
             if(bwapi.getSelf().equals(u.getPlayer())) {
-                System.out.println("Created " + u.getType().getName() + " at " + u.getPosition());
+                log.trace("Created %s at %s", u.getType().getName(), u.getPosition());
                 bwInterface.units.put(unitID, u);
                 bwInterface.newUnits.offer(unitID);
             } else if (!bwapi.getEnemies().contains(u.getPlayer())) {
-                System.out.println("Nonplayer " + u.getType().getName() + " at " + u.getPosition());
+                log.trace("Nonplayer %s at %s", u.getType().getName(), u.getPosition());
             }
         }
 

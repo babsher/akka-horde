@@ -22,6 +22,7 @@ case object Halt extends HordeFSMData
 
 case class Scenario(name: String)
 case class SetEnvironment(env: ActorRef)
+case class SetRoot(env: ActorRef)
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   import HordeFSM.logger
@@ -36,6 +37,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       val root = context.actorOf(Props[Root])
       val env = context.actorOf(Props[Environment])
       root ! SetEnvironment(env)
+      env ! SetRoot(root)
       goto(Running) using new EnvironmentData(env)
   }
 

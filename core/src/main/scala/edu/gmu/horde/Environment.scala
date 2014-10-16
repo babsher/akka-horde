@@ -14,7 +14,7 @@ object Environment {
   val log = LoggerFactory.getLogger(Environment.getClass())
 }
 
-class Environment extends Actor with ActorLogging {
+abstract class Environment extends Actor with ActorLogging {
   import Environment.log
   import DistributedPubSubMediator.{ Subscribe, SubscribeAck }
 
@@ -22,7 +22,4 @@ class Environment extends Actor with ActorLogging {
   // subscribe to the topic named "content"
   mediator ! Subscribe("content", self)
 
-  def receive = {
-    case _: MemberEvent => // ignore
-  }
 }
