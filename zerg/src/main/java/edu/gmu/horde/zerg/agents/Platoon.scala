@@ -16,5 +16,5 @@ object Platoon {
 }
 
 class Platoon extends Actor with FSM[Platoon.States, Platoon.Features] {
-
+  
 }

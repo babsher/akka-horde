@@ -12,6 +12,7 @@ object UnitAgent {
   case object Start extends States
   case object Moving extends States
   case object Attacking extends States
+  case object Retreat extends States
   case object Idle extends States
 
   trait Features
