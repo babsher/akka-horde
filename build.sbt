@@ -6,7 +6,7 @@ scalaVersion := "2.11.2"
 
 lazy val root =
   project.in( file(".") )
-    .aggregate(core, ui, zerg)
+    .aggregate(core, ui)
 
 lazy val core = project
 

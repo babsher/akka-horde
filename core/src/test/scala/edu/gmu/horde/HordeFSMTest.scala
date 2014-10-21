@@ -13,7 +13,6 @@ class HordeFSMTest {
     implicit val system = ActorSystem("HordeDebug", ConfigFactory.load())
     val fsm = TestFSMRef(new HordeFSM)
     val mustBeTypedProperly: TestActorRef[HordeFSM] = fsm
-6
     assert(fsm.stateName == Idle)
     assert(fsm.stateData == Uninitialized)
 
