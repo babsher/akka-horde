@@ -1,7 +1,6 @@
 package edu.gmu.horde.zerg.env
 
-import akka.actor.{ActorRef, Actor}
-import akka.contrib.pattern.DistributedPubSubMediator
+import akka.actor._
 import edu.gmu.horde.{SetRoot, Environment}
 import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
 

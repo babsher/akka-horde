@@ -49,15 +49,14 @@ class Environment extends Actor with ActorLogging {
   override def receive: Actor.Receive = {
     case SetRoot(r: ActorRef) =>
       root = r
-    case Subscribe(id: Integer, ref: ActorRef) =>
+    case Subscribe(id: Int, ref: ActorRef) =>
       eventBus.subscribe(ref, id)
-    case Unsubscribe(ref: ActorRef, id: Integer) =>
-      if (id == None) {
-        eventBus.unsubscribe(ref)
-      } else {
-        eventBus.unsubscribe(ref, id)
+    case Unsubscribe(ref: ActorRef, id: Option[Int]) =>
+      id match {
+        case Some(id) => eventBus.unsubscribe(ref, id)
+        case None => eventBus.unsubscribe(ref)
       }
     case Publish(u: UnitUpdate) =>
-      eventBus.publish(u)
+      eventBus.publish(MsgEnvelope(u))
   }
 }

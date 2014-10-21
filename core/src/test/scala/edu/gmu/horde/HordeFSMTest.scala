@@ -1,6 +1,7 @@
 package edu.gmu.horde
 
 import com.typesafe.config.ConfigFactory
+import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.junit._
 import akka.testkit._
 import akka.actor.{Props, FSM, ActorSystem}
@@ -10,6 +11,8 @@ class HordeFSMTest {
 
   @Test
   def test = {
+    println(System.getProperty("java.library.path"))
+
     implicit val system = ActorSystem("HordeDebug", ConfigFactory.load())
     val fsm = TestFSMRef(new HordeFSM)
     val mustBeTypedProperly: TestActorRef[HordeFSM] = fsm
@@ -21,7 +24,7 @@ class HordeFSMTest {
     Thread.sleep(1000)
     assert(fsm.stateName == Running)
     println(fsm.stateData)
-    assert(fsm.stateData == EnvironmentData(null))
+    assert(fsm.stateData == EnvironmentData(system.actorOf(Props[ZergEnvironment])))
     assert(fsm.stateName == Running)
   }
 }

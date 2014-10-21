@@ -2,8 +2,6 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{FSM, _}
 import edu.gmu.horde.zerg.{Activate, UnitUpdate}
-import edu.gmu.horde.zerg.agents.UnitAgent
-import jnibwapi.Unit
 
 import scala.concurrent.duration._
 
@@ -33,7 +31,7 @@ class UnitAgent extends Actor with FSM[UnitAgent.States, UnitAgent.Features] {
   }
 
   when(Moving) {
-    case Event(UnitUpdate(id: Integer, u: jnibwapi.Unit), _) =>
+    case Event(UnitUpdate(id: Int, u: jnibwapi.Unit), _) =>
       unit = u
       if (unit.isMoving) {
         stay
@@ -43,7 +41,7 @@ class UnitAgent extends Actor with FSM[UnitAgent.States, UnitAgent.Features] {
   }
 
   when(Attacking) {
-    case Event(UnitUpdate(id: Integer, u: jnibwapi.Unit), _) =>
+    case Event(UnitUpdate(id: Int, u: jnibwapi.Unit), _) =>
       unit = u
       if(unit.isAttacking) {
         stay

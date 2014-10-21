@@ -1,6 +1,7 @@
 package edu.gmu.horde
 
 import akka.actor._
+import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 
@@ -35,7 +36,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Now running {}", name)
       val root = context.actorOf(Props[Root])
-      val env = context.actorOf(Props[Environment])
+      val env = context.actorOf(Props[ZergEnvironment])
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       goto(Running) using new EnvironmentData(env)
