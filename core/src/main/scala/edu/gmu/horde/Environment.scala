@@ -20,17 +20,17 @@ class Environment extends Actor with ActorLogging {
    * MsgEnvelope starts with the String specified when subscribing.
    */
   class UpdateEventBus extends EventBus with LookupClassification {
-    type Event = MsgEnvelope
+    type Event = UnitUpdate
     type Classifier = Integer
     type Subscriber = ActorRef
 
     // is used for extracting the classifier from the incoming events
-    override protected def classify(event: Event): Classifier = event.payload.id
+    override protected def classify(event: Event): Classifier = event.id
 
     // will be invoked for each event for all subscribers which registered themselves
     // for the event’s classifier
     override protected def publish(event: Event, subscriber: Subscriber): Unit = {
-      subscriber ! event.payload
+      subscriber ! event
     }
 
     // must define a full order over the subscribers, expressed as expected from
@@ -57,6 +57,6 @@ class Environment extends Actor with ActorLogging {
         case None => eventBus.unsubscribe(ref)
       }
     case Publish(u: UnitUpdate) =>
-      eventBus.publish(MsgEnvelope(u))
+      eventBus.publish(u)
   }
 }

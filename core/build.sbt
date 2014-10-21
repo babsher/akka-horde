@@ -14,5 +14,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j" % "2.3.6",
   "org.slf4j" % "slf4j-simple" % "1.7.7",
   "junit" % "junit" % "4.8.1" % "test",
-  "com.typesafe.akka" %% "akka-testkit" % "2.3.6" % "test"
+  "com.typesafe.akka" %% "akka-testkit" % "2.3.6" % "test",
+  "org.mockito" % "mockito-core" % "1.9.5" % "test"
 )
