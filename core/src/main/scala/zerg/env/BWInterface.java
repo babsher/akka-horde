@@ -1,4 +1,4 @@
-package edu.gmu.horde.zerg.env;
+package zerg.env;
 
 import akka.actor.ActorRef;
 import edu.gmu.horde.zerg.OnFrame;

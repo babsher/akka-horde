@@ -13,12 +13,13 @@ class HordeFSMTest {
     implicit val system = ActorSystem("HordeDebug", ConfigFactory.load())
     val fsm = TestFSMRef(new HordeFSM)
     val mustBeTypedProperly: TestActorRef[HordeFSM] = fsm
-
+6
     assert(fsm.stateName == Idle)
     assert(fsm.stateData == Uninitialized)
 
     val msg = Scenario("A Name")
-    fsm ! msg // being a TestActorRef, this runs also on the CallingThreadDispatcher
+    fsm ! msg
+    Thread.sleep(1000)
     assert(fsm.stateName == Running)
     println(fsm.stateData)
     assert(fsm.stateData == EnvironmentData(null))

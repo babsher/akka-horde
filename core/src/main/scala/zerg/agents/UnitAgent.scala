@@ -1,7 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{FSM, _}
-import edu.gmu.horde.zerg.UnitUpdate
+import edu.gmu.horde.zerg.{Activate, UnitUpdate}
 import edu.gmu.horde.zerg.agents.UnitAgent
 import jnibwapi.Unit
 
