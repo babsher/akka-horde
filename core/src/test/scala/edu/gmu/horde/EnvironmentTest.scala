@@ -20,11 +20,11 @@ class EnvironmentTest {
   @Test
   def testSubscribe = {
     implicit val system = ActorSystem("HordeDebug", ConfigFactory.load())
-    val env = TestFSMRef(new Environment)
+    val env = TestActorRef(new Environment)
     val mustBeTypedProperly: TestActorRef[Environment] = env
     val test = TestActorRef(new TestActor)
     env ! Subscribe(1, test)
-    jnibwapi.Unit u =
+    val u: jnibwapi.Unit = null
     env ! new Publish(UnitUpdate(1, u))
   }
 

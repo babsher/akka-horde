@@ -1,3 +1,5 @@
+import AssemblyKeys._ // put this at the top of the file
+
 name := "akka-horde-core"
 
 version := "1.0"
@@ -17,3 +19,18 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.3.6" % "test",
   "org.mockito" % "mockito-core" % "1.9.5" % "test"
 )
+
+assemblySettings
+
+lazy val buildSettings = Seq(
+  version := "0.1-SNAPSHOT",
+  organization := "com.example",
+  scalaVersion := "2.10.1"
+)
+
+val app = (project in file("app")).
+  settings(buildSettings: _*).
+  settings(assemblySettings: _*).
+  settings(
+    // your settings here
+  )
