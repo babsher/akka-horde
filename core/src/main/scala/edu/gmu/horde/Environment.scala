@@ -11,7 +11,7 @@ object Environment {
 
 final case class MsgEnvelope(payload: UnitUpdate)
 
-class Environment extends Actor with ActorLogging {
+class Environment extends Actor {
   import Environment.log
   import akka.event.LookupClassification
 
@@ -50,6 +50,7 @@ class Environment extends Actor with ActorLogging {
     case SetRoot(r: ActorRef) =>
       root = r
     case Subscribe(id: Int, ref: ActorRef) =>
+      log.debug("Subscribing actor: {} to {}", ref, id)
       eventBus.subscribe(ref, id)
     case Unsubscribe(ref: ActorRef, id: Option[Int]) =>
       id match {
