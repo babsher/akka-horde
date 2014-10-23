@@ -17,7 +17,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "1.7.7",
   "junit" % "junit" % "4.8.1" % "test",
   "com.typesafe.akka" %% "akka-testkit" % "2.3.6" % "test",
-  "org.mockito" % "mockito-core" % "1.9.5" % "test"
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
 assemblySettings
