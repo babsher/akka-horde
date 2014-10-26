@@ -15,6 +15,9 @@ lazy val core = project
 lazy val ui = project
   .dependsOn(core)
 
+val akkaV = "2.3.6"
+val sprayV = "1.3.2"
+
 assemblySettings
 
 lazy val buildSettings = Seq(
