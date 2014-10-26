@@ -1,4 +1,5 @@
-import sbtassembly.Plugin.AssemblyKeys._
+import AssemblyKeys._ // put this at the top of the file
+
 
 name := "akka-horde"
 
@@ -6,32 +7,29 @@ version := "1.0"
 
 scalaVersion := "2.11.2"
 
-lazy val root =
-  project.in( file(".") )
-    .aggregate(core, ui)
+classpathTypes ++= Set("dll")
 
-lazy val core = project
-
-lazy val ui = project
-  .dependsOn(core)
+resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 val akkaV = "2.3.6"
 val sprayV = "1.3.2"
 
-assemblySettings
-
-lazy val buildSettings = Seq(
-  version := "0.1-SNAPSHOT",
-  organization := "com.example",
-  scalaVersion := "2.10.1"
+libraryDependencies ++= Seq(
+  "org.slf4j" % "slf4j-simple" % "1.7.7",
+  "io.spray" %% "spray-can" % sprayV,
+  "io.spray" %% "spray-routing" % sprayV,
+  "com.typesafe.akka" %% "akka-actor" % akkaV,
+  "com.typesafe.akka" %% "akka-kernel" % akkaV,
+  "com.typesafe.akka" %% "akka-slf4j" % akkaV,
+  "junit" % "junit" % "4.8.1" % "test",
+  "io.spray" %% "spray-testkit" % sprayV % "test",
+  "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
+  "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
-val app = (project in file("app")).
-  settings(buildSettings: _*).
-  settings(assemblySettings: _*).
-  settings(
-    // your settings here
-  )
+assemblySettings
+
+mainClass in assembly := Some("edu.gmu.horde.Boot")
 
 val deployTask = TaskKey[Unit]("deploy", "Copies assembly jar to remote location")
 
