@@ -1,6 +1,6 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.FSM
+import akka.actor.{Props, FSM}
 
 trait DroneStates
 case object Harvest extends DroneStates
@@ -14,7 +14,11 @@ trait DroneFeatures
 case object Uninitialized extends DroneFeatures
 case object MoveTarget extends DroneFeatures
 
-class Drone extends UnitAgent with FSM[DroneStates, DroneFeatures] {
+object Drone {
+  def props(id :Int) :Props = Props(new Drone(id))
+}
+
+class Drone(id :Int) extends UnitAgent(id) with FSM[DroneStates, DroneFeatures] {
 
   startWith(Start, Uninitialized)
 
