@@ -1,6 +1,8 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{Props, FSM}
+import akka.actor.{ActorRef, FSM, Props}
+import edu.gmu.horde.zerg.env.MoveToNearestMineral
+import jnibwapi.{Unit => BUnit}
 
 trait DroneStates
 case object Harvest extends DroneStates
@@ -15,15 +17,21 @@ case object Uninitialized extends DroneFeatures
 case object MoveTarget extends DroneFeatures
 
 object Drone {
-  def props(id :Int) :Props = Props(new Drone(id))
+  def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id :Int) extends UnitAgent(id) with FSM[DroneStates, DroneFeatures] {
+class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with FSM[DroneStates, DroneFeatures] {
 
   startWith(Start, Uninitialized)
 
   onTransition {
     case x -> y => log.debug("Entering " + y + " from " + x)
+  }
+
+  when(Idle) {
+    case Event(Harvest, _) =>
+      env ! MoveToNearestMineral(id)
+      goto(Harvest)
   }
 
   initialize()

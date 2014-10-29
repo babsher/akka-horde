@@ -9,12 +9,13 @@ import jnibwapi.Position
 
 class BaseManagerAgent extends Actor {
 
-  var env :ZergEnvironment = null
+  var env: ActorRef = null
 
   override def receive: Receive = {
-    case SetEnvironment(env :ZergEnvironment) =>
+    case SetEnvironment(env: ActorRef) =>
       this.env = env
     case NewUnit(id: Int, unit: jnibwapi.Unit) =>
-      drone = context.actorOf()
+      val drone = context.actorOf(Drone.props(id, unit, env))
+      drone ! Harvest
   }
 }

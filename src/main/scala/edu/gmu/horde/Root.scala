@@ -2,7 +2,7 @@ package edu.gmu.horde
 
 import akka.actor.{Props, ActorRef, Actor}
 import akka.actor.Actor.Receive
-import edu.gmu.horde.zerg.agents.ProductionAgent
+import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
 case class SetManagers(production :ActorRef, military :ActorRef)
 
