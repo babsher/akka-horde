@@ -40,17 +40,4 @@ trait MyService extends HttpService {
         }
       }
     }
-    path("api") {
-      path("start") {
-
-
-        // JSONP support
-//        jsonpWithParameter("callback") {
-//          // use in-scope marshaller to create completer function
-//          produce(instanceOf[Order]) { completer => ctx =>
-//            processOrderRequest(orderId, completer)
-//          }
-//        }
-      }
-    }
 }
