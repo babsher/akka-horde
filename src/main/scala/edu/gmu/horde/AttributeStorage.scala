@@ -3,13 +3,14 @@ package edu.gmu.horde
 import java.io.{FileWriter, BufferedWriter, File}
 import java.util.ArrayList
 import jnibwapi.Unit
-import weka.core.converters.ArffSaver
+import weka.core.converters.{Saver, ArffSaver}
 import weka.core.{Instances, FastVector, Instance, Attribute}
 import org.slf4j.LoggerFactory
 
 import akka.actor.{AbstractLoggingActor, Props, ActorRef, Actor}
 
 import scala.collection.immutable.List
+import scala.collection.mutable.MutableList
 
 sealed trait AttributeValue
 case class StringValue(v: String) extends AttributeValue
@@ -30,38 +31,46 @@ class AttributeStorage(id: Int, attributes: Seq[Attribute]) extends Actor {
 
   override def receive: Receive = {
     case Write(i: Map[String, AttributeValue]) =>
+      log.debug("Matches {}", i.size == attributes.size)
       log.debug("Adding instance: {}", i)
       instances = instances :+ i
     case Close =>
       log.debug("closing - {}", instances)
       val name = "Drone"
-      val attrInfo = new FastVector(attributes.size)
-      val inst = new Instances(name + id, attrInfo, 10)
+      val attrInfo = getAttributes()
+      val inst = new Instances(name + id, attrInfo, 0)
+      val saver = new ArffSaver()
+      saver.setInstances(inst)
+      saver.setRetrieval(Saver.INCREMENTAL)
+      val f = new File("./data/test.arff")
+      log.debug("Writing instances to {}", f.getAbsoluteFile)
+      saver.setFile(f)
+      saver.setDestination(new File("./data/test.arff"))
+
       for(x <- instances) {
-        val i = new Instance(attributes.size)
-        log.debug("new instance {}", i)
+        val i = Array.fill(attributes.size){0.0}
         for (attr <- attributes) {
-          log.debug("checking {}", attr)
           if(x contains attr.name()) {
-            log.debug("setting attr {}", attr)
             x(attr.name) match {
-              case StringValue(v: String) => i.setValue(attr, v)
-              case DoubleValue(v: Double) => i.setValue(attr, v)
+              case StringValue(v: String) => i(attr.index) = attr.addStringValue(v).asInstanceOf[Double]
+              case DoubleValue(v: Double) => i(attr.index) = v
             }
           } else {
             log.debug("did not mat attr {}", attr)
           }
         }
-        inst.add(i)
+        saver.writeIncremental(new Instance(1.0, i))
       }
-      val saver = new ArffSaver()
-      saver.setInstances(inst)
-      val f = new File("./data/test.arff")
-      log.debug("Writing instances to {}", f.getAbsoluteFile)
-      saver.setFile(f)
-      saver.setDestination(new File("./data/test.arff"))
-      saver.writeBatch()
+      saver.writeIncremental(null)
     case a =>
       log.debug("Unmatched {}", a)
+  }
+
+  def getAttributes(): FastVector = {
+    val f = new FastVector(attributes.size)
+    for(a <- attributes) {
+      f.addElement(a)
+    }
+    return f
   }
 }
