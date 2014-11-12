@@ -1,6 +1,6 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{FSM, Actor}
+import akka.actor.{LoggingFSM, FSM, Actor}
 import edu.gmu.horde.HordeAgentFSM
 
 
@@ -16,8 +16,7 @@ object Platoon {
   case object MoveTarget extends Features
 }
 
-class Platoon extends Actor with FSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
-
+class Platoon extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
 
   from(Platoon.Start) {
     Seq(

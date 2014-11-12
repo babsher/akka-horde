@@ -1,6 +1,7 @@
 package edu.gmu.horde.zerg.env
 
 import akka.actor._
+import edu.gmu.horde.env.BWInterface
 import edu.gmu.horde.{SetRoot, Environment}
 import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
 import jnibwapi.types.UnitCommandType.UnitCommandTypes

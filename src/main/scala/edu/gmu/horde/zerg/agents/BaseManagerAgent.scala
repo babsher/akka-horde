@@ -1,6 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{Props, ActorRef, Actor}
+import edu.gmu.horde.zerg.agents.Drone.Harvest
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import edu.gmu.horde.{SetEnvironment, SetManagers}
 import edu.gmu.horde.zerg.NewUnit

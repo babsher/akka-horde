@@ -3,10 +3,6 @@ package edu.gmu.horde
 import akka.actor._
 import org.slf4j.LoggerFactory
 
-object HordeAgentFSM {
-  val log = LoggerFactory.getLogger(classOf[HordeAgentFSM])
-}
-
 /**
  * A simple extension of Akka's <code>FSM</code>.  In this class, state transitions can be defined with the
  * <code>from</code> state and <code>to</code> state constructs.
@@ -17,9 +13,9 @@ object HordeAgentFSM {
  * @param D denotes the user specified data model
  */
 trait HordeAgentFSM[S, D] {
-  this: FSM[S, D] =>
+  this: LoggingFSM[S, D] =>
 
-  case class To[S](state: S, f: Function1[Event, Unit])
+  case class To[S](state: S, f: (Event) => Unit)
 
   def from(fromState: S)(toStates: Seq[To[S]]) {
     when(fromState) {
@@ -33,8 +29,8 @@ trait HordeAgentFSM[S, D] {
             stay
         }
 
-      case _ =>
-        log.debug("Unknown state transition {}", _)
+      case a@_ =>
+        log.debug("Unknown state transition {}", a)
         stay
     }
   }
