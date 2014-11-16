@@ -1,7 +1,6 @@
 package edu.gmu.horde
 
-import akka.actor._
-import org.slf4j.LoggerFactory
+import akka.actor.{LoggingFSM, FSM}
 
 /**
  * A simple extension of Akka's <code>FSM</code>.  In this class, state transitions can be defined with the
@@ -14,8 +13,9 @@ import org.slf4j.LoggerFactory
  */
 trait HordeAgentFSM[S, D] {
   this: LoggingFSM[S, D] =>
+  import akka.actor.FSM.Event
 
-  case class To[S](state: S, f: (Event) => Unit)
+  case class To[S](state: S, f: (Event) => Unit, features: () => Map[String, AttributeValue])
 
   def from(fromState: S)(toStates: Seq[To[S]]) {
     when(fromState) {

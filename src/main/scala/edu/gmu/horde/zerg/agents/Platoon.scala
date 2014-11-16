@@ -27,7 +27,7 @@ class Platoon extends Actor with LoggingFSM[Platoon.States, Platoon.Features] wi
 
   initialize
 
-  private def action(fromState: Platoon.States, toState: Platoon.States): Function1[Event, Unit] = {
+  private def action(fromState: Platoon.States, toState: Platoon.States): (Event) => Unit = {
     case Event(nextState: Platoon.States, _) =>
     case _ =>
   }
