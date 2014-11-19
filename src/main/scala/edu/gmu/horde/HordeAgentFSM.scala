@@ -12,7 +12,7 @@ import akka.actor.{LoggingFSM, FSM}
  * @param D denotes the user specified data model
  */
 trait HordeAgentFSM[S, D] {
-  this: LoggingFSM[S, D] =>
+  this: FSM[S, D] =>
   import akka.actor.FSM.Event
 
   case class To[S](state: S, f: (Event) => Unit, features: () => Map[String, AttributeValue])

@@ -1,6 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{LoggingFSM, ActorRef, FSM, Props}
+import akka.actor.{LoggingFSM, ActorRef, Props}
+import akka.actor.FSM.Event
 import edu.gmu.horde.HordeAgentFSM
 import edu.gmu.horde.zerg.env.MoveToNearestMineral
 import jnibwapi.{Unit => BUnit}
@@ -47,7 +48,7 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
     )
   }
 
-  private def action(fromState: States, toState: States): Function1[Event, Unit] = {
+  private def action(fromState: States, toState: States): (Event) => Unit = {
     case Event(nextState: States, _) =>
     case _ =>
   }
