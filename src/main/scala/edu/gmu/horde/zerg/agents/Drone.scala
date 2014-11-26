@@ -2,15 +2,28 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{LoggingFSM, ActorRef, Props}
 import akka.actor.FSM.Event
-import edu.gmu.horde.HordeAgentFSM
+import edu.gmu.horde.{AgentState, DoubleValue, AttributeValue, HordeAgentFSM}
 import edu.gmu.horde.zerg.env.MoveToNearestMineral
 import jnibwapi.{Unit => BUnit}
 
+
 object Drone {
 
-  trait States
-  case object Harvest extends States
-  case object Start extends States
+  def UnitPosition(implicit unit : BUnit) : (String, AttributeValue) = {
+    ("positionX", DoubleValue(unit.getPosition.getBX))
+  }
+
+  trait States extends AgentState[Drone] {
+  }
+  case object Harvest extends States {
+    override def features(d : Drone) : Map[String, AttributeValue] = {
+      implicit val unit = d.unit
+      Map(UnitPosition)
+    }
+  }
+  case object Start extends States {
+
+  }
   case object Moving extends States
   case object Attacking extends States
   case object Retreat extends States
@@ -19,13 +32,12 @@ object Drone {
   trait Features
   case object Uninitialized extends Features
   case object MoveTarget extends Features
-  def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
+  def props(id: Int, unit : BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
 class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
 
   import Drone._
-
 
   startWith(Start, Uninitialized)
 

@@ -1,6 +1,8 @@
 package edu.gmu.horde
 
-import akka.actor.{LoggingFSM, FSM}
+import akka.actor.{ActorContext, ActorRef, LoggingFSM, FSM}
+import edu.gmu.horde.zerg.agents.Drone
+import weka.core.Attribute
 
 /**
  * A simple extension of Akka's <code>FSM</code>.  In this class, state transitions can be defined with the
@@ -13,9 +15,8 @@ import akka.actor.{LoggingFSM, FSM}
  */
 trait HordeAgentFSM[S, D] {
   this: FSM[S, D] =>
-  import akka.actor.FSM.Event
 
-  case class To[S](state: S, f: (Event) => Unit, features: () => Map[String, AttributeValue])
+  case class To[S](state: S, f: (Event) => Unit)
 
   def from(fromState: S)(toStates: Seq[To[S]]) {
     when(fromState) {
@@ -32,6 +33,18 @@ trait HordeAgentFSM[S, D] {
       case a@_ =>
         log.debug("Unknown state transition {}", a)
         stay
+    }
+  }
+}
+
+trait AgentState[T] {
+  var store : ActorRef
+  def attributes() : Seq[Attribute] = ???
+  def features(d : T) : Map[String, AttributeValue] = ???
+
+  def store(implicit context : ActorContext) : ActorRef = {
+    if(store == null) {
+      store = AttributeStorage.props(classOf[T], classOf[this], attributes)
     }
   }
 }
