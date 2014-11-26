@@ -15,10 +15,12 @@ import weka.core.Attribute
  */
 trait HordeAgentFSM[S, D] {
   this: FSM[S, D] =>
+  val attributeStore : ActorRef
 
   case class To[S](state: S, f: (Event) => Unit)
 
   def from(fromState: S)(toStates: Seq[To[S]]) {
+
     when(fromState) {
       case e@Event(nextState: S, _) =>
         val option = toStates.find((to: To[S]) => to.state == nextState)
@@ -35,16 +37,15 @@ trait HordeAgentFSM[S, D] {
         stay
     }
   }
+
+  def store(fromState :S, toState :S) : Unit = {
+
+  }
 }
 
 trait AgentState[T] {
   var store : ActorRef
   def attributes() : Seq[Attribute] = ???
   def features(d : T) : Map[String, AttributeValue] = ???
-
-  def store(implicit context : ActorContext) : ActorRef = {
-    if(store == null) {
-      store = AttributeStorage.props(classOf[T], classOf[this], attributes)
-    }
-  }
+  def name() : String = ???
 }
