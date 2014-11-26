@@ -6,6 +6,9 @@ import edu.gmu.horde.AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg.agents.Drone
 import weka.core.Attribute
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 /**
  * A simple extension of Akka's <code>FSM</code>.  In this class, state transitions can be defined with the
  * <code>from</code> state and <code>to</code> state constructs.
@@ -18,6 +21,7 @@ import weka.core.Attribute
 trait HordeAgentFSM[S <: AgentState, D] {
   this: FSM[S, D] =>
   val attributeStore : ActorRef
+  var store :Map[S, ActorRef] = Map()
 
   case class To[S](state: S, f: (Event) => Unit)
 
@@ -41,15 +45,19 @@ trait HordeAgentFSM[S <: AgentState, D] {
   }
 
   def store(fromState :S, toState :S) : Unit = {
-    val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))
-    val store :ActorRef =
-    store ! Write(fromState.features(this))
+    if(!store.contains(fromState)) {
+      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))
+      val s :ActorRef = Await.result(future, 5 seconds).asInstanceOf[ActorRef]
+      s ! Write(fromState.features(this))
+    } else {
+      store(fromState) ! Write(fromState.features(this))
+    }
   }
 }
 
-trait AgentState[T <: HordeAgentFSM] {
+trait AgentState {
   var store : ActorRef
   def attributes() : Seq[Attribute] = ???
-  def features(d : HordeAgentFSM) : Map[String, AttributeValue] = ???
+  def features(d : Any) : Map[String, AttributeValue] = ???
   def name() : String = ???
 }
