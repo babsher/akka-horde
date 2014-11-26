@@ -18,46 +18,43 @@ case object Close
 
 object AttributeStorage {
   val log = LoggerFactory.getLogger(AttributeStorage.getClass)
-  def props(agentType :String, stateName :String, attributes :Seq[Attribute]): Props =
-    Props(new AttributeStorage(agentType, stateName, attributes))
+  def props(directory :String, agentType :String, stateName :String, attributes :Seq[Attribute]): Props =
+    Props(new AttributeStorage(directory, agentType, stateName, attributes))
 }
 
-class AttributeStorage(val agentType :String, val stateName :String, val attributes :Seq[Attribute]) extends Actor {
+class AttributeStorage(val directory :String, val agentType :String, val stateName :String, val attributes :Seq[Attribute]) extends Actor {
   import edu.gmu.horde.AttributeStorage.log
 
   var instances: Seq[Map[String, AttributeValue]] = List()
+  val attrInfo = getAttributes()
+  val inst = new Instances(agentType, attrInfo, 0)
+  val saver = new ArffSaver()
+  saver.setInstances(inst)
+  saver.setRetrieval(Saver.INCREMENTAL)
+  val f = new File(directory + agentType + "/" + stateName + "/" + context.parent.path + ".arff" )
+  log.debug("Writing instances to {}", f.getAbsoluteFile)
+  saver.setFile(f)
+  saver.setDestination(f)
 
   override def receive: Receive = {
     case Write(i: Map[String, AttributeValue]) =>
       log.debug("Matches {}", i.size == attributes.size)
       log.debug("Adding instance: {}", i)
       instances = instances :+ i
+      val data = Array.fill(attributes.size){0.0}
+      for (attr <- attributes) {
+        if(i contains attr.name()) {
+          i(attr.name) match {
+            case StringValue(v: String) => data(attr.index) = attr.addStringValue(v).asInstanceOf[Double]
+            case DoubleValue(v: Double) => data(attr.index) = v
+          }
+        } else {
+          log.debug("did not mat attr {}", attr)
+        }
+      }
+      saver.writeIncremental(new Instance(1.0, data))
     case Close =>
       log.debug("closing - {}", instances)
-      val attrInfo = getAttributes()
-      val inst = new Instances(agentType, attrInfo, 0)
-      val saver = new ArffSaver()
-      saver.setInstances(inst)
-      saver.setRetrieval(Saver.INCREMENTAL)
-      val f = new File("./data/" + agentType + "/" + stateName + "/" + context.parent.path + ".arff" )
-      log.debug("Writing instances to {}", f.getAbsoluteFile)
-      saver.setFile(f)
-      saver.setDestination(f)
-
-      for(x <- instances) {
-        val i = Array.fill(attributes.size){0.0}
-        for (attr <- attributes) {
-          if(x contains attr.name()) {
-            x(attr.name) match {
-              case StringValue(v: String) => i(attr.index) = attr.addStringValue(v).asInstanceOf[Double]
-              case DoubleValue(v: Double) => i(attr.index) = v
-            }
-          } else {
-            log.debug("did not mat attr {}", attr)
-          }
-        }
-        saver.writeIncremental(new Instance(1.0, i))
-      }
       saver.writeIncremental(null)
     case a =>
       log.debug("Unmatched {}", a)

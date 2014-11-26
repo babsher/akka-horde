@@ -24,6 +24,7 @@ case object Halt extends HordeFSMData
 case class Scenario(name: String)
 case class SetEnvironment(env: ActorRef)
 case class SetRoot(env: ActorRef)
+case class SetAttributeStore(store: ActorRef)
 case object Run
 case object Stop
 
@@ -32,6 +33,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
 
   var env :ActorRef = null
   var root :ActorRef = null
+  var store :ActorRef = null
 
   startWith(Idle, Uninitialized)
 
@@ -40,8 +42,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       goto(Idle)
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Now running {}", name)
-      root = context.actorOf(Props[Root])
-      env = context.actorOf(Props[ZergEnvironment])
+      root = context.actorOf(Props[Root], "root")
+      env = context.actorOf(Props[ZergEnvironment], "env")
+      store = context.actorOf(AttributeStore.props(), "store")
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay

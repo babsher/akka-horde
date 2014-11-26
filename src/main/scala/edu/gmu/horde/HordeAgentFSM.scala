@@ -1,6 +1,8 @@
 package edu.gmu.horde
 
+import akka.pattern.ask
 import akka.actor.{ActorContext, ActorRef, LoggingFSM, FSM}
+import edu.gmu.horde.AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg.agents.Drone
 import weka.core.Attribute
 
@@ -13,7 +15,7 @@ import weka.core.Attribute
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S, D] {
+trait HordeAgentFSM[S <: AgentState, D] {
   this: FSM[S, D] =>
   val attributeStore : ActorRef
 
@@ -39,13 +41,15 @@ trait HordeAgentFSM[S, D] {
   }
 
   def store(fromState :S, toState :S) : Unit = {
-
+    val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))
+    val store :ActorRef =
+    store ! Write(fromState.features(this))
   }
 }
 
-trait AgentState[T] {
+trait AgentState[T <: HordeAgentFSM] {
   var store : ActorRef
   def attributes() : Seq[Attribute] = ???
-  def features(d : T) : Map[String, AttributeValue] = ???
+  def features(d : HordeAgentFSM) : Map[String, AttributeValue] = ???
   def name() : String = ???
 }

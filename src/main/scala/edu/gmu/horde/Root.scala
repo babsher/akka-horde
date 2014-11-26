@@ -8,13 +8,13 @@ case class SetManagers(production :ActorRef, military :ActorRef)
 
 class Root extends Actor {
 
-  var miltary :ActorRef = null
+  var miliatry :ActorRef = null
   var production :ActorRef = null
   var research :ActorRef = null
 
   override def receive: Receive = {
     case Run =>
-      miltary = context.actorOf(Props[MilitaryAgent])
+      miliatry = context.actorOf(Props[MilitaryAgent])
       production = context.actorOf(Props[ProductionAgent])
   }
 }
