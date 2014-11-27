@@ -1,15 +1,48 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{LoggingFSM, FSM, Actor}
-import edu.gmu.horde.HordeAgentFSM
-
+import edu.gmu.horde._
+import weka.core.Attribute
 
 object Platoon {
-  trait States
-  case object Start extends States
-  case object Moving extends States
-  case object Attacking extends States
-  case object Idle extends States
+
+  trait States extends AgentState[Platoon] with SimpleFeatures
+  case object Start extends States {
+    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+
+    override def features(d: Platoon): Map[String, AttributeValue] = {
+      TrueFeature()
+    }
+
+    override def name(): String = super.name()
+  }
+  case object Moving extends States {
+    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+
+    override def features(d: Platoon): Map[String, AttributeValue] = {
+      TrueFeature()
+    }
+
+    override def name(): String = "Moving"
+  }
+  case object Attacking extends States {
+    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+
+    override def features(d: Platoon): Map[String, AttributeValue] = {
+      TrueFeature()
+    }
+
+    override def name(): String = "Attacking"
+  }
+  case object Idle extends States {
+    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+
+    override def features(d: Platoon): Map[String, AttributeValue] = {
+      TrueFeature()
+    }
+
+    override def name(): String = "Idle"
+  }
 
   trait Features
   case object Uninitialized extends Features

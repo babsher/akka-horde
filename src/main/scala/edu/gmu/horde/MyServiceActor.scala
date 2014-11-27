@@ -1,6 +1,6 @@
 package edu.gmu.horde
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import spray.routing._
 import spray.http._
 import MediaTypes._
@@ -23,6 +23,8 @@ class MyServiceActor extends Actor with MyService {
 // this trait defines our service behavior independently from the service actor
 trait MyService extends HttpService {
 
+  var horde: ActorRef = null
+
   val myRoute =
     path("") {
       get {
@@ -32,6 +34,7 @@ trait MyService extends HttpService {
               <body>
                 <h1>Akka Horde</h1>
                 <a href="/api/start">Start</a>
+                <a href="/api/stop">Stop</a>
                 <a href="/api/train">Train</a>
                 <a href="/api/run">Run</a>
               </body>
@@ -39,5 +42,24 @@ trait MyService extends HttpService {
           }
         }
       }
+      path("api") {
+        path("start") {
+          get {
+            complete {
+              horde = createHorde()
+              "done"
+            }
+          }
+        }
+        path("Run") {
+          complete {
+            horde ! Scenario("test")
+            "done"
+          }
+        }
+      }
     }
+
+  def createHorde() = ???
+
 }

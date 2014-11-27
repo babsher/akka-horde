@@ -2,27 +2,32 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{LoggingFSM, ActorRef, Props}
 import akka.actor.FSM.Event
+import edu.gmu.horde.zerg.UnitFeatures
 import edu.gmu.horde.{AgentState, DoubleValue, AttributeValue, HordeAgentFSM}
 import edu.gmu.horde.zerg.env.MoveToNearestMineral
 import jnibwapi.{Unit => BUnit}
+import weka.core.Attribute
 
 
 object Drone {
 
-  def UnitPosition(implicit unit : BUnit) : (String, AttributeValue) = {
-    ("positionX", DoubleValue(unit.getPosition.getBX))
-  }
-
-  trait States extends AgentState[Drone] {
-  }
+  trait States extends AgentState[Drone] with UnitFeatures
   case object Harvest extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(""))
+    override def name() : String = "Harvest"
     override def features(d : Drone) : Map[String, AttributeValue] = {
-      implicit val unit = d.unit
-      Map(UnitPosition)
+        implicit val unit = d.asInstanceOf[Drone].unit
+        Map(UnitPosition)
     }
   }
   case object Start extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
 
+    override def features(d: Platoon): Map[String, AttributeValue] = {
+      TrueFeature()
+    }
+
+    override def name(): String = "Start"
   }
   case object Moving extends States
   case object Attacking extends States

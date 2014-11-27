@@ -18,7 +18,7 @@ import scala.concurrent.duration._
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S <: AgentState, D] {
+trait HordeAgentFSM[S <: AgentState[HordeAgentFSM[S, D]], D] {
   this: FSM[S, D] =>
   val attributeStore : ActorRef
   var store :Map[S, ActorRef] = Map()
@@ -46,7 +46,7 @@ trait HordeAgentFSM[S <: AgentState, D] {
 
   def store(fromState :S, toState :S) : Unit = {
     if(!store.contains(fromState)) {
-      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))
+      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))(5 second)
       val s :ActorRef = Await.result(future, 5 seconds).asInstanceOf[ActorRef]
       s ! Write(fromState.features(this))
     } else {
@@ -55,9 +55,8 @@ trait HordeAgentFSM[S <: AgentState, D] {
   }
 }
 
-trait AgentState {
-  var store : ActorRef
+trait AgentState[AgentType] {
   def attributes() : Seq[Attribute] = ???
-  def features(d : Any) : Map[String, AttributeValue] = ???
+  def features(d : AgentType) : Map[String, AttributeValue] = ???
   def name() : String = ???
 }
