@@ -9,17 +9,17 @@ import edu.gmu.horde.AttributeStore.{AStore, NewAttributeStore}
 import weka.core.Attribute
 
 object AttributeStore {
-  def props(): Props = {
-    Props[AttributeStore]
+  def props(scenario :String): Props = {
+    Props(new AttributeStore(scenario))
   }
 
   case class NewAttributeStore(agentName :String, stateName :String, attributes :Seq[Attribute])
   case class AStore(ref :ActorRef)
 }
 
-class AttributeStore extends Actor {
+class AttributeStore(val name :String) extends Actor {
 
-  val session = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())
+  val session = name + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())
   var stores :Map[String, ActorRef] = Map()
   val directory = "./data/" + session + "/"
 

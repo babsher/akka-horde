@@ -11,8 +11,6 @@ class HordeFSMTest {
 
   @Test
   def test = {
-    println(System.getProperty("java.library.path"))
-
     implicit val system = ActorSystem("HordeDebug", ConfigFactory.load())
     val fsm = TestFSMRef(new HordeFSM)
     val mustBeTypedProperly: TestActorRef[HordeFSM] = fsm

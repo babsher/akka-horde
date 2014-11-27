@@ -1,10 +1,14 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{LoggingFSM, FSM, Actor}
+import akka.actor.{Props, LoggingFSM, FSM, Actor}
 import edu.gmu.horde._
 import weka.core.Attribute
 
 object Platoon {
+
+  def props : Props = {
+    Props[Platoon]
+  }
 
   trait States extends AgentState with SimpleFeatures {
     override def features(d : AnyRef) = {
