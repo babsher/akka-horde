@@ -18,20 +18,26 @@ import scala.concurrent.duration._
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S <: AgentState[HordeAgentFSM[S, D]], D] {
+trait HordeAgentFSM[S <: AgentState, D] {
   this: FSM[S, D] =>
-  val attributeStore : ActorRef
+  var attributeStore : ActorRef = _
   var store :Map[S, ActorRef] = Map()
+  var training = false
 
-  case class To[S](state: S, f: (Event) => Unit)
+  case class To(state: S, f: (Event) => Unit)
 
-  def from(fromState: S)(toStates: Seq[To[S]]) {
-
+  def from(fromState: S)(toStates: Seq[To]) {
     when(fromState) {
+      case Event(SetAttributeStore(storeActor: ActorRef), _) =>
+        attributeStore = storeActor
+        stay
       case e@Event(nextState: S, _) =>
-        val option = toStates.find((to: To[S]) => to.state == nextState)
+        val option = toStates.find((to: To) => to.state == nextState)
         option match {
           case Some(toState) =>
+            if(training) {
+              store(fromState, toState.state)
+            }
             toState.f(e)
             goto(nextState)
           case None =>
@@ -45,18 +51,19 @@ trait HordeAgentFSM[S <: AgentState[HordeAgentFSM[S, D]], D] {
   }
 
   def store(fromState :S, toState :S) : Unit = {
-    if(!store.contains(fromState)) {
+    val storeActor = if(!store.contains(fromState)) {
       val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))(5 second)
-      val s :ActorRef = Await.result(future, 5 seconds).asInstanceOf[ActorRef]
-      s ! Write(fromState.features(this))
+      Await.result(future, 5 seconds).asInstanceOf[ActorRef]
     } else {
-      store(fromState) ! Write(fromState.features(this))
+      store(fromState)
     }
+
+    storeActor ! Write(fromState.features(this))
   }
 }
 
-trait AgentState[AgentType] {
+trait AgentState {
   def attributes() : Seq[Attribute] = ???
-  def features(d : AgentType) : Map[String, AttributeValue] = ???
+  def features(d : AnyRef) : Map[String, AttributeValue] = ???
   def name() : String = ???
 }

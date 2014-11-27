@@ -20,8 +20,11 @@ class AttributeStorageSpec extends WordSpecLike {
 
     "Write instance to file" in {
       val a = List(new Attribute("firstNumeric", 0), new Attribute("secondNumeric", 1))
+      val directory = "testdata"
+      val agentType = "AgentClass"
+      val stateName = "Start"
       print(a.size)
-      val attr = TestActorRef(new AttributeStorage(1, a))
+      val attr = TestActorRef(new AttributeStorage(directory, agentType, stateName, a))
       println(a)
       val i = Map(a(0).name() -> DoubleValue(1), a(1).name() -> DoubleValue(1))
       attr ! Write(i)

@@ -6,39 +6,46 @@ import weka.core.Attribute
 
 object Platoon {
 
-  trait States extends AgentState[Platoon] with SimpleFeatures
+  trait States extends AgentState with SimpleFeatures {
+    override def features(d : AnyRef) = {
+      d match {
+        case Platoon => features(d.asInstanceOf[Drone])
+      }
+    }
+    def features(d : Platoon) : Map[String, AttributeValue]
+  }
   case object Start extends States {
-    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
 
     override def features(d: Platoon): Map[String, AttributeValue] = {
-      TrueFeature()
+      Map(TrueFeature)
     }
 
     override def name(): String = super.name()
   }
   case object Moving extends States {
-    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
 
     override def features(d: Platoon): Map[String, AttributeValue] = {
-      TrueFeature()
+      Map(TrueFeature)
     }
 
     override def name(): String = "Moving"
   }
   case object Attacking extends States {
-    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
 
     override def features(d: Platoon): Map[String, AttributeValue] = {
-      TrueFeature()
+      Map(TrueFeature)
     }
 
     override def name(): String = "Attacking"
   }
   case object Idle extends States {
-    override def attributes(): Seq[Attribute] = Seq[new Attribute(TrueFeatureName)]
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
 
     override def features(d: Platoon): Map[String, AttributeValue] = {
-      TrueFeature()
+      Map(TrueFeature)
     }
 
     override def name(): String = "Idle"

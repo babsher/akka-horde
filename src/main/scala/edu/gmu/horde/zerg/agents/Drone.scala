@@ -1,9 +1,8 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{LoggingFSM, ActorRef, Props}
-import akka.actor.FSM.Event
 import edu.gmu.horde.zerg.UnitFeatures
-import edu.gmu.horde.{AgentState, DoubleValue, AttributeValue, HordeAgentFSM}
+import edu.gmu.horde._
 import edu.gmu.horde.zerg.env.MoveToNearestMineral
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
@@ -11,36 +10,66 @@ import weka.core.Attribute
 
 object Drone {
 
-  trait States extends AgentState[Drone] with UnitFeatures
+  trait States extends AgentState with UnitFeatures with SimpleFeatures {
+    override def features(d : AnyRef) = {
+      d match {
+        case Drone => features(d.asInstanceOf[Drone])
+      }
+    }
+    def features(d : Drone) : Map[String, AttributeValue]
+  }
   case object Harvest extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(""))
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(UnitPositionXName), new Attribute(UnitPositionYName))
     override def name() : String = "Harvest"
     override def features(d : Drone) : Map[String, AttributeValue] = {
         implicit val unit = d.asInstanceOf[Drone].unit
-        Map(UnitPosition)
+        Map(UnitPositionX, UnitPositionY)
     }
   }
   case object Start extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-
-    override def features(d: Platoon): Map[String, AttributeValue] = {
-      TrueFeature()
-    }
-
     override def name(): String = "Start"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
   }
-  case object Moving extends States
-  case object Attacking extends States
-  case object Retreat extends States
-  case object Idle extends States
+  case object Moving extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Moving"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Attacking extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Attacking"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Retreat extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Retreat"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Idle extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Idle"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
 
   trait Features
   case object Uninitialized extends Features
   case object MoveTarget extends Features
+
   def props(id: Int, unit : BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
+class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with HordeAgentFSM[Drone.States, Drone.Features] with LoggingFSM[Drone.States, Drone.Features] {
 
   import Drone._
 
