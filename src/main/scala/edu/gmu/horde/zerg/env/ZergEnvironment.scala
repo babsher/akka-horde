@@ -2,7 +2,7 @@ package edu.gmu.horde.zerg.env
 
 import akka.actor._
 import edu.gmu.horde.env.BWInterface
-import edu.gmu.horde.{SetRoot, Environment}
+import edu.gmu.horde.{Run, SetRoot, Environment}
 import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
 import jnibwapi.types.UnitCommandType.UnitCommandTypes
 import jnibwapi.{Unit => BUnit, UnitCommand, Position}
@@ -24,6 +24,10 @@ class ZergEnvironment extends Environment {
 
   override def receive =
     super.receive orElse {
+      case Run(connect) =>
+        if(connect) {
+          game.start()
+        }
       case UnitCmd(id, cmd) =>
         log.debug("Got command for: " + id)
         game.commands.add(cmd)

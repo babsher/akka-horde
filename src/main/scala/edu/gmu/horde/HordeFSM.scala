@@ -25,7 +25,7 @@ case class Scenario(name: String)
 case class SetEnvironment(env: ActorRef)
 case class SetRoot(env: ActorRef)
 case class SetAttributeStore(store: ActorRef)
-case object Run
+case class Run(connect :Boolean)
 case object Stop
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
@@ -48,9 +48,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay
-    case Event(Run, _) =>
-      root ! Run
-      env ! Run
+    case Event(run @ Run, _) =>
+      root ! run
+      env ! run
       goto(Running) using new EnvironmentData(env)
   }
 

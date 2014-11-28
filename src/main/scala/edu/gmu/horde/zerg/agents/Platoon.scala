@@ -62,10 +62,38 @@ object Platoon {
 
 class Platoon extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
 
+  import Platoon._
+
+  startWith(Platoon.Start, Uninitialized)
+
+  onTransition {
+    case x -> y => log.debug("Entering " + y + " from " + x)
+  }
+
   from(Platoon.Start) {
     Seq(
-      To(Platoon.Moving, action(Platoon.Start, Platoon.Moving)),
-      To(Platoon.Attacking, action(Platoon.Start, Platoon.Attacking))
+      To(Platoon.Idle, action(Platoon.Start, Platoon.Idle))
+    )
+  }
+
+  from(Platoon.Moving) {
+    Seq(
+      To(Platoon.Attacking, action(Platoon.Moving, Platoon.Attacking)),
+      To(Platoon.Idle, action(Platoon.Moving, Platoon.Idle))
+    )
+  }
+
+  from(Platoon.Attacking) {
+    Seq(
+      To(Platoon.Moving, action(Platoon.Attacking, Platoon.Moving)),
+      To(Platoon.Idle, action(Platoon.Attacking, Platoon.Idle))
+    )
+  }
+
+  from(Platoon.Idle) {
+    Seq(
+      To(Platoon.Moving, action(Platoon.Idle, Platoon.Moving)),
+      To(Platoon.Attacking, action(Platoon.Idle, Platoon.Moving))
     )
   }
 
