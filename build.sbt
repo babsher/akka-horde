@@ -7,6 +7,10 @@ version := "1.0"
 
 scalaVersion := "2.11.2"
 
+javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
+
+scalacOptions += "-target:jvm-1.7"
+
 classpathTypes ++= Set("dll")
 
 resolvers ++= Seq(
@@ -17,8 +21,8 @@ val akkaV = "2.3.6"
 val sprayV = "1.3.2"
 
 libraryDependencies ++= Seq(
-  "org.slf4j" % "slf4j-simple" % "1.7.7",
-//  "org.java-websocket" % "Java-WebSocket" % "1.3.0",
+  "ch.qos.logback" % "logback-classic" % "1.1.2",
+  "ch.qos.logback" % "logback-core" % "1.1.2",
   "io.spray" %% "spray-json" % "1.3.0",
   "io.spray" %% "spray-can" % sprayV,
   "io.spray" %% "spray-routing" % sprayV,
