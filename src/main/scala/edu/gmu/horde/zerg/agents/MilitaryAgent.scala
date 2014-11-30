@@ -5,7 +5,7 @@ import edu.gmu.horde.zerg.NewUnit
 
 class MilitaryAgent extends Actor {
 
-  var platoon :ActorRef = context.actorOf(Props[Platoon])
+  var platoon :ActorRef = _
 
   override def receive: Receive = {
     case n @ NewUnit(id, unit) =>

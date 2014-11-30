@@ -14,6 +14,7 @@ class ProductionAgent extends Actor {
     case SetManagers(production: ActorRef, military: ActorRef) =>
       this.military = military
     case NewUnit(id: Int, unit: jnibwapi.Unit) =>
+
       if(unit.getType == UnitType.UnitTypes.Zerg_Drone) {
         val a = getBaseAgent(unit.getPosition)
         a ! NewUnit(id, unit)

@@ -36,6 +36,7 @@ class ZergEnvironment extends Environment {
       case OnFrame =>
         while (!game.newUnits.isEmpty()) {
           val id = game.newUnits.poll()
+          log.debug("Found new units: {}", id)
           root ! NewUnit(id, game.units.get(id))
         }
       case MoveToNearestMineral(id: Int) =>

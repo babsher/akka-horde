@@ -16,5 +16,8 @@ class Root extends Actor {
     case Run =>
       miliatry = context.actorOf(Props[MilitaryAgent])
       production = context.actorOf(Props[ProductionAgent])
+    case msg @ _ =>
+      miliatry ! msg
+      production ! msg
   }
 }
