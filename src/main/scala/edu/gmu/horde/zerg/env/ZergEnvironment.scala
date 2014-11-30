@@ -5,7 +5,8 @@ import edu.gmu.horde.env.BWInterface
 import edu.gmu.horde.{Run, SetRoot, Environment}
 import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
 import jnibwapi.types.UnitCommandType.UnitCommandTypes
-import jnibwapi.{Unit => BUnit, UnitCommand, Position}
+import jnibwapi.types.UnitType
+import jnibwapi.{Unit => BUnit, Region, UnitCommand, Position}
 import jnibwapi.types.UnitType.UnitTypes
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
@@ -16,7 +17,8 @@ object ZergEnvironment {
   val mineralTypes = Set(UnitTypes.Resource_Mineral_Field)
 }
 
-case class MoveToNearestMineral(id: Int)
+case class MoveToNearestMineral(id :Int)
+case class BuildBuilding(id :Int, buildingType :UnitType, region :Region)
 
 class ZergEnvironment extends Environment {
   import ZergEnvironment._
@@ -40,6 +42,10 @@ class ZergEnvironment extends Environment {
         val unit = game.bwapi.getUnit(id)
         val minerals = game.bwapi.getNeutralUnits.asScala.filter(mineralTypes contains _.getType)
         val nearest = minerals.min(Ordering.by((m: BUnit) => m.getPosition.getApproxWDistance (unit.getPosition)))
-        game.commands add new UnitCommand(nearest, UnitCommandTypes.Right_Click_Position, nearest)
+        game.commands add new UnitCommand(unit, UnitCommandTypes.Right_Click_Position, nearest)
+      case BuildBuilding(id :Int, buildingType :UnitType, region :Region) =>
+        val unit = game.bwapi.getUnit(id)
+        // TODO compute good location
+        game.commands add new UnitCommand(unit, UnitCommandTypes.Build, region.getCenter, buildingType.getID)
     }
 }

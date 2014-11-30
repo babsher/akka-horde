@@ -24,10 +24,20 @@ trait HordeAgentFSM[S <: AgentState, D] {
   var store :Map[S, ActorRef] = Map()
   var training = false
 
-  case class To(state: S, f: (Event) => Unit)
+  setTimer("action", Action, 1 second, true)
+
+  case class To(state :S, f: (Event) => Unit)
+  case class Action()
 
   def from(fromState: S)(toStates: Seq[To]) {
     when(fromState) {
+      case Event(Action, _) =>
+        val nextState = getNextState(fromState, fromState.features(this), toStates)
+        if(nextState == fromState) {
+          stay
+        } else {
+          goto(nextState)
+        }
       case Event(SetAttributeStore(storeActor: ActorRef), _) =>
         attributeStore = storeActor
         stay
@@ -43,27 +53,53 @@ trait HordeAgentFSM[S <: AgentState, D] {
           case None =>
             stay
         }
+      case Event(msg @ _, _) =>
+        val nextState = getNextState(fromState, fromState.features(this, msg), toStates)
+        if(nextState == fromState) {
+          stay
+        } else {
+          goto(nextState)
+        }
 
       case a@_ =>
         log.debug("Unknown state transition {}", a)
         stay
     }
+
+    def getNextState(currentState :S, features :Map[String, AttributeValue], toStates :Seq[To]) : S = {
+      val state = classifiy(features)
+      val s = toStates.filter(x => x.state.name == state)
+      if(s.isEmpty) {
+        log.debug("No state matching {}", state)
+        return currentState
+      } else {
+        return s(0).state
+      }
+    }
+
+    def classifiy(features :Map[String, AttributeValue]) : String = {
+      ""
+    }
   }
 
   def store(fromState :S, toState :S) : Unit = {
     val storeActor = if(!store.contains(fromState)) {
-      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, fromState.attributes))(5 second)
+      val attr = Seq(new Attribute("nextState")) ++ fromState.attributes
+      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, attr))(5 second)
       Await.result(future, 5 seconds).asInstanceOf[ActorRef]
     } else {
       store(fromState)
     }
-
-    storeActor ! Write(fromState.features(this))
+    val instance = fromState.features(this) + ("nextState" -> StringValue(toState.name))
+    storeActor ! Write(instance)
   }
 }
 
 trait AgentState {
   def attributes() : Seq[Attribute] = ???
-  def features(d : AnyRef) : Map[String, AttributeValue] = ???
+  def features(agent :AnyRef) : Map[String, AttributeValue] = ???
+  def features(agent :AnyRef, msg :Any) :Map[String, AttributeValue] = {
+    features(agent) + ("msg" -> StringValue(msg.toString))
+  }
   def name() : String = ???
 }

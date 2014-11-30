@@ -64,33 +64,33 @@ class Platoon extends Actor with LoggingFSM[Platoon.States, Platoon.Features] wi
 
   import Platoon._
 
-  startWith(Platoon.Start, Uninitialized)
+  startWith(Start, Uninitialized)
 
   onTransition {
     case x -> y => log.debug("Entering " + y + " from " + x)
   }
 
-  from(Platoon.Start) {
+  from(Start) {
     Seq(
       To(Platoon.Idle, action(Platoon.Start, Platoon.Idle))
     )
   }
 
-  from(Platoon.Moving) {
+  from(Moving) {
     Seq(
       To(Platoon.Attacking, action(Platoon.Moving, Platoon.Attacking)),
       To(Platoon.Idle, action(Platoon.Moving, Platoon.Idle))
     )
   }
 
-  from(Platoon.Attacking) {
+  from(Attacking) {
     Seq(
       To(Platoon.Moving, action(Platoon.Attacking, Platoon.Moving)),
       To(Platoon.Idle, action(Platoon.Attacking, Platoon.Idle))
     )
   }
 
-  from(Platoon.Idle) {
+  from(Idle) {
     Seq(
       To(Platoon.Moving, action(Platoon.Idle, Platoon.Moving)),
       To(Platoon.Attacking, action(Platoon.Idle, Platoon.Moving))
