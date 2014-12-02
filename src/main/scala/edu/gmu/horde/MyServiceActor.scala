@@ -38,6 +38,7 @@ class MyServiceActor extends Actor with ActorLogging {
     case HttpRequest(GET, Uri.Path("/api/start"), _, _, _) =>
       horde ! Scenario("demo")
       sender ! HttpResponse(entity = "Started")
+      // TODO add redirect to index
     case HttpRequest(GET, Uri.Path("/api/run"), _, _, _) =>
       horde ! Run(true)
       sender ! HttpResponse(entity = "Running")

@@ -147,7 +147,7 @@ public class BWInterface {
                 bwInterface.newUnits.add(unitID);
                 bwInterface.env.tell(new NewUnit(unitID, u), null);
             } else if (!bwapi.getEnemies().contains(u.getPlayer())) {
-                log.debug("Nonplayer %s at %s", u.getType().getName(), u.getPosition());
+                log.trace("Nonplayer {} at {}", u.getType().getName(), u.getPosition());
             }
         }
 

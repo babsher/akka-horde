@@ -71,7 +71,6 @@ object Drone {
 
   trait Features
   case object Uninitialized extends Features
-  case object MoveTarget extends Features
 
   def props(id: Int, unit : BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
