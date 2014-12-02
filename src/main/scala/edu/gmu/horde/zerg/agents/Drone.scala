@@ -76,7 +76,7 @@ object Drone {
   def props(id: Int, unit : BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with HordeAgentFSM[Drone.States, Drone.Features] with LoggingFSM[Drone.States, Drone.Features] {
+class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
 
   import Drone._
 

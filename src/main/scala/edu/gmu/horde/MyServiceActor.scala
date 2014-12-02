@@ -37,8 +37,10 @@ class MyServiceActor extends Actor with ActorLogging {
 
     case HttpRequest(GET, Uri.Path("/api/start"), _, _, _) =>
       horde ! Scenario("demo")
-      horde ! Run(true)
       sender ! HttpResponse(entity = "Started")
+    case HttpRequest(GET, Uri.Path("/api/run"), _, _, _) =>
+      horde ! Run(true)
+      sender ! HttpResponse(entity = "Running")
 
     case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
       sender ! HttpResponse(entity = "PONG!")
@@ -63,6 +65,7 @@ class MyServiceActor extends Actor with ActorLogging {
           <ul>
             <li><a href="/ping">ping</a></li>
             <li><a href="/api/start">Start</a></li>
+            <ll><a href="/api/run">Run</a></ll>
             <li><a href="/server-stats">server-stats</a></li>
             <li><a href="/api/stop">Stop</a></li>
           </ul>

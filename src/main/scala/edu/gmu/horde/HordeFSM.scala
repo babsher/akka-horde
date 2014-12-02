@@ -48,13 +48,13 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay
-    case Event(run @ Run, _) =>
-      root ! run
-      env ! run
+    case Event(Run(value), _) =>
+      root ! Run(value)
+      env ! Run(value)
       goto(Running) using new EnvironmentData(env)
   }
 
-  when(Running, stateTimeout = 10 seconds) {
+  when(Running) {
     case Event(StateTimeout, _) =>
       goto(Stopped)
     case Event(Stop, _) =>

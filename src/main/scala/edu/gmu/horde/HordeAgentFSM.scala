@@ -24,8 +24,6 @@ trait HordeAgentFSM[S <: AgentState, D] {
   var store :Map[S, ActorRef] = Map()
   var training = false
 
-  setTimer("action", Action, 1 second, true)
-
   case class To(state :S, f: (Event) => Unit)
   case class Action()
 

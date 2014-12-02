@@ -1,6 +1,7 @@
 package edu.gmu.horde.env;
 
 import akka.actor.ActorRef;
+import edu.gmu.horde.zerg.NewUnit;
 import edu.gmu.horde.zerg.OnFrame;
 import jnibwapi.*;
 import org.slf4j.Logger;
@@ -125,7 +126,7 @@ public class BWInterface {
         @Override
         public void unitShow(int unitID) {
             Unit u = bwapi.getUnit(unitID);
-            log.trace("shown %s at %s ", u.getType().getName(), u.getPosition());
+            log.debug("shown {} at {} ", u.getType().getName(), u.getPosition());
             if(bwapi.getEnemies().contains(u.getPlayer())) {
                 bwInterface.enemyUnits.put(unitID, u);
             }
@@ -134,18 +135,19 @@ public class BWInterface {
         @Override
         public void unitHide(int unitID) {
             bwInterface.enemyUnits.remove(unitID);
-            log.trace("hide %s", unitID);
+            log.debug("hide {}", unitID);
         }
 
         @Override
         public void unitCreate(int unitID) {
             Unit u = bwapi.getUnit(unitID);
             if(bwapi.getSelf().equals(u.getPlayer())) {
-                log.trace("Created %s at %s", u.getType().getName(), u.getPosition());
+                log.debug("Created {} at {}", u.getType().getName(), u.getPosition());
                 bwInterface.units.put(unitID, u);
-                bwInterface.newUnits.offer(unitID);
+                bwInterface.newUnits.add(unitID);
+                bwInterface.env.tell(new NewUnit(unitID, u), null);
             } else if (!bwapi.getEnemies().contains(u.getPlayer())) {
-                log.trace("Nonplayer %s at %s", u.getType().getName(), u.getPosition());
+                log.debug("Nonplayer %s at %s", u.getType().getName(), u.getPosition());
             }
         }
 

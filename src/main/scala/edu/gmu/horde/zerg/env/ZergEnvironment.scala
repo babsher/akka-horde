@@ -28,6 +28,7 @@ class ZergEnvironment extends Environment {
     super.receive orElse {
       case Run(connect) =>
         if(connect) {
+          log.debug("Connecting to game")
           game.start()
         }
       case UnitCmd(id, cmd) =>
@@ -39,6 +40,8 @@ class ZergEnvironment extends Environment {
           log.debug("Found new units: {}", id)
           root ! NewUnit(id, game.units.get(id))
         }
+      case NewUnit(id, u) =>
+        root ! NewUnit(id, u)
       case MoveToNearestMineral(id: Int) =>
         val unit = game.bwapi.getUnit(id)
         val minerals = game.bwapi.getNeutralUnits.asScala.filter(mineralTypes contains _.getType)
