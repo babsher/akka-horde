@@ -1,6 +1,7 @@
 package edu.gmu.horde
 
 import akka.io.IO
+import spray.http.HttpHeaders.Location
 
 import scala.concurrent.duration._
 import akka.pattern.ask
@@ -40,9 +41,14 @@ class MyServiceActor extends Actor with ActorLogging {
       sender ! HttpResponse(entity = "Started")
       // TODO add redirect to index
     case HttpRequest(GET, Uri.Path("/api/run"), _, _, _) =>
-      horde ! Run(true)
-      sender ! HttpResponse(entity = "Running")
-
+      horde ! Run(true, false)
+      sender ! redirect("/", "Running")
+    case HttpRequest(GET, Uri.Path("/api/train"), _, _, _) =>
+      horde ! Run(true, true)
+      sender ! redirect("/", "Training")
+    case HttpRequest(GET, Uri.Path("/api/stop"), _, _, _) =>
+      horde ! Stop
+      sender ! redirect("/", "Stopping")
     case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
       sender ! HttpResponse(entity = "PONG!")
 
@@ -57,6 +63,17 @@ class MyServiceActor extends Actor with ActorLogging {
 
   ////////////// helpers //////////////
 
+  def redirect(uri :String, text :String) = {
+    HttpResponse(
+      status = StatusCodes.PermanentRedirect,
+      headers = Location(uri) :: Nil,
+      entity = HttpEntity(`text/html`, <html>
+        <body>
+          <h1>{text}</h1>
+        </body>
+      </html>.toString()))
+  }
+
   lazy val index = HttpResponse(
     entity = HttpEntity(`text/html`,
       <html>
@@ -65,9 +82,13 @@ class MyServiceActor extends Actor with ActorLogging {
           <p>Defined resources:</p>
           <ul>
             <li><a href="/ping">ping</a></li>
+            <li><hr></hr></li>
             <li><a href="/api/start">Start</a></li>
-            <ll><a href="/api/run">Run</a></ll>
+            <li><a href="/api/run">Run</a></li>
+            <li><a href="/api/train">Train</a></li>
+            <li><hr></hr></li>
             <li><a href="/server-stats">server-stats</a></li>
+            <li><hr></hr></li>
             <li><a href="/api/stop">Stop</a></li>
           </ul>
         </body>

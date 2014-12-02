@@ -25,7 +25,7 @@ case class Scenario(name: String)
 case class SetEnvironment(env: ActorRef)
 case class SetRoot(env: ActorRef)
 case class SetAttributeStore(store: ActorRef)
-case class Run(connect :Boolean)
+case class Run(connect :Boolean, train :Boolean)
 case object Stop
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
@@ -48,27 +48,44 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay
-    case Event(Run(value), _) =>
-      if(root != null) {
-        root ! Run(value)
-        env ! Run(value)
-        goto(Running) using new EnvironmentData(env)
-      } else {
-        stay
-      }
+    case Event(Run(conn, train), _) =>
+      doRun(conn, train)
   }
 
   when(Running) {
-    case Event(StateTimeout, _) =>
-      goto(Stopped)
     case Event(Stop, _) =>
       goto(Stopped)
+    case Event(Run(conn, train), _) =>
+      doRun(conn, train)
+  }
+
+  when(Training) {
+    case Event(Stop, _) =>
+      goto(Stopped)
+    case Event(Run(conn, train), _) =>
+      doRun(conn, train)
   }
 
   when(Stopped) (FSM.NullFunction)
 
+  def doRun(connect :Boolean, train :Boolean) = {
+    if(root != null) {
+      root ! Run(connect, train)
+      env ! Run(connect, train)
+      if(train) {
+        goto(Training) using new EnvironmentData(env)
+      } else {
+        goto(Running) using new EnvironmentData(env)
+      }
+    } else {
+      stay
+    }
+  }
+
   onTransition {
-    case x -> y => log.debug("Entering " + y + " from " + x)
+    case _ -> Stopped =>
+      root ! Stop
+      env ! Stop
   }
 
   initialize()

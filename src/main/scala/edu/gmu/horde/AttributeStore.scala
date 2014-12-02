@@ -5,6 +5,7 @@ import java.util.Date
 
 import akka.actor.{Props, ActorRef, Actor}
 import akka.actor.Actor.Receive
+import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.AttributeStore.{AStore, NewAttributeStore}
 import weka.core.Attribute
 
@@ -21,7 +22,7 @@ class AttributeStore(val name :String) extends Actor {
 
   val session = name + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())
   var stores :Map[String, ActorRef] = Map()
-  val directory = "./data/" + session + "/"
+  val directory = ConfigFactory.load().getString("horde.instanceDir") + session + "/"
 
   override def receive: Receive = {
     case NewAttributeStore(agentName, stateName, attributes) =>

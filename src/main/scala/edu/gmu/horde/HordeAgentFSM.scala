@@ -2,8 +2,10 @@ package edu.gmu.horde
 
 import akka.pattern.ask
 import akka.actor.{ActorContext, ActorRef, LoggingFSM, FSM}
+import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg.agents.Drone
+import weka.classifiers.Classifier
 import weka.core.Attribute
 
 import scala.concurrent.Await
@@ -23,6 +25,13 @@ trait HordeAgentFSM[S <: AgentState, D] {
   var attributeStore : ActorRef = _
   var store :Map[S, ActorRef] = Map()
   var training = false
+  val models :Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
+
+  def loadModels(dir :String): Map[S, Classifier] = {
+    (for(state <- this.states; c = weka.core.SerializationHelper.read(dir + state.name))
+      yield (state -> c)) toMap
+  }
+  def states : Seq[S]
 
   case class To(state :S, f: (Event) => Unit)
   case class Action()
