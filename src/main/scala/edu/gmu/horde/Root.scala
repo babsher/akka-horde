@@ -26,11 +26,12 @@ class Root extends Actor {
       miliatry ! msg
   }
 
-  def createManagers(connect :Boolean) :Unit = {
+  def createManagers(connect :Boolean, train :Boolean) :Unit = {
     miliatry = context.actorOf(Props[MilitaryAgent])
     production = context.actorOf(Props[ProductionAgent])
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set
+    context.children.map(child => child ! Train(train))
   }
 }

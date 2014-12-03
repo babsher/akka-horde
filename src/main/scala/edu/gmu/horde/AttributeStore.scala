@@ -14,7 +14,7 @@ object AttributeStore {
     Props(new AttributeStore(scenario))
   }
 
-  case class NewAttributeStore(agentName :String, stateName :String, attributes :Seq[Attribute])
+  case class NewAttributeStore(agentName :String, stateName :AgentState, attributes :Seq[Attribute])
   case class AStore(ref :ActorRef)
 }
 
@@ -25,9 +25,9 @@ class AttributeStore(val name :String) extends Actor {
   val directory = ConfigFactory.load().getString("horde.instanceDir") + session + "/"
 
   override def receive: Receive = {
-    case NewAttributeStore(agentName, stateName, attributes) =>
-      val key = agentName + stateName
-      val store = stores.getOrElse(key, context.actorOf(AttributeStorage.props(directory, agentName, stateName, attributes)))
+    case NewAttributeStore(agentName, state, attributes) =>
+      val key = agentName + state.name
+      val store = stores.getOrElse(key, context.actorOf(AttributeStorage.props(directory, agentName, state, attributes)))
       stores += (key -> store)
       sender ! AStore(store)
   }

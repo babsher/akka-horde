@@ -1,41 +1,45 @@
 package edu.gmu.horde
 
 import java.io.File
+import java.util.Enumeration
 
-import com.google.common.io.Files
 import weka.classifiers.Classifier
 import weka.classifiers.trees.J48
-import weka.core.{Attribute, Instances}
+import weka.core.{Instance, Attribute, Instances}
 import weka.core.converters.ArffLoader
 
 trait Trainer {
-  def train(states :Seq[AgentState], dirName :String) : Map[AgentState, Classifier] = {
-    (for(state <- states; c = trainState(state, dirName))
-      yield (state -> c)) toMap
-  }
-
-  def trainState(state :AgentState, dirName :String) :Classifier = {
+  def train(states :Seq[AgentState], dirName :String, agentName :String) : Map[AgentState, Classifier] = {
     val loader  = new ArffLoader
-    val dir = new File(dirName + state.name)
-    var instances: Instances = null
-    for (file <- dir.listFiles()) {
-      loader.setFile(file)
-      if (instances == null) {
-        instances = loader.getDataSet
-      } else {
-        for (i <- loader.getDataSet.enumerateInstances()) {
-          instances.add(i)
+
+    def trainState(state :AgentState) :Classifier = {
+      val dir = new File(dirName + state.name)
+      var instances: Instances = null
+      for (file <- dir.listFiles()) {
+        loader.setFile(file)
+        if (instances == null) {
+          instances = loader.getDataSet
+        } else {
+          val enum :Enumeration[_]= loader.getDataSet.enumerateInstances
+          while(enum.hasMoreElements) {
+            instances.add(enum.nextElement().asInstanceOf[Instance])
+          }
         }
       }
-    }
-    for(attr :Attribute <- instances.enumerateAttributes()) {
-      if(attr.name() eq "state") {
-        instances.setClass(attr)
+      val enum = instances.enumerateAttributes
+      while(enum.hasMoreElements) {
+        val attr = enum.nextElement().asInstanceOf[Attribute]
+        if(attr.name() eq "state") {
+          instances.setClass(attr)
+        }
       }
+      val c = new J48
+      c.buildClassifier(instances)
+      weka.core.SerializationHelper.write(new File(dir, agentName + ".model").getCanonicalPath, c)
+      return c
     }
-    val c = new J48
-    c.buildClassifier(instances)
-    weka.core.SerializationHelper.write(new File(dir, "j48.model").getCanonicalPath, c)
-    return c
+
+    (for(state <- states; c = trainState(state))
+      yield (state -> c)) toMap
   }
 }

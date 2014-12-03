@@ -79,38 +79,57 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
 
   import Drone._
 
-  startWith(Start, Uninitialized)
+  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Moving :: Drone.Retreat :: Nil
 
-  when(Idle) {
+  startWith(Drone.Start, Drone.Uninitialized)
+
+  when(Drone.Idle) {
     case Event(Harvest, _) =>
-      env ! MoveToNearestMineral(id)
       goto(Harvest)
   }
 
-  from(Start) {
+  from(Drone.Idle) {
     Seq(
-      To(Moving, action(Start, Moving)),
-      To(Attacking, action(Start, Attacking)),
-      To(Harvest, action(Start, Harvest))
+      To(Drone.Moving, action(Drone.Idle, Drone.Moving)),
+      To(Drone.Build, action(Drone.Idle, Drone.Moving)),
+      To(Drone.Harvest, action(Drone.Idle, Drone.Harvest))
     )
   }
 
-  from(Moving) {
+  from(Drone.Start) {
     Seq(
-      To(Harvest, action(Moving, Harvest)),
-      To(Attacking, action(Moving, Harvest))
+      To(Drone.Moving, action(Drone.Start, Drone.Moving)),
+      To(Drone.Attacking, action(Drone.Start, Drone.Attacking)),
+      To(Drone.Harvest, action(Drone.Start, Drone.Harvest))
+    )
+  }
+
+  from(Drone.Moving) {
+    Seq(
+      To(Drone.Harvest, action(Drone.Moving, Drone.Harvest)),
+      To(Drone.Attacking, action(Drone.Moving, Drone.Harvest))
     )
   }
 
   initialize
 
-  private def action(fromState: States, toState: States): (Event) => Unit = {
-    case Event(BuildBuilding(unitId, buildingType, region), _) =>
-      env ! BuildBuilding(id, buildingType, region)
-    case _ =>
+  private def action(fromState: Drone.States, toState: Drone.States): (Event) => Unit = {
+    (fromState, toState) match {
+      case _ -> Build => buildAction
+      case _ -> Harvest => harvestAction
+    }
   }
 
-  private def onState(currentState: States, message: States) = {
-    stay
+  private def buildAction :(Event) => Unit = {
+    case Event(BuildBuilding(unitId, buildingType, region), _) =>
+      env ! BuildBuilding(id, buildingType, region)
+  }
+
+  private def harvestAction :(Event) => Unit = {
+    case Event(Harvest, _) => println("Harvest")
+  }
+
+  onTransition{
+    case _ -> Harvest => env ! MoveToNearestMineral(id)
   }
 }

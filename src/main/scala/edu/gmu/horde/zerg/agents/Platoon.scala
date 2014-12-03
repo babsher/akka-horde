@@ -8,6 +8,8 @@ class Platoon extends Actor with LoggingFSM[States, Features] with HordeAgentFSM
 
   startWith(Start, Uninitialized)
 
+  override def states = Start :: Moving :: Attacking :: Idle :: Nil
+
   onTransition {
     case x -> y => log.debug("Entering " + y + " from " + x)
   }
@@ -60,21 +62,17 @@ trait States extends AgentState with SimpleFeatures {
 }
 case object Start extends States {
   override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-
+  override def name(): String = "Start"
   override def feature(d: Platoon): Map[String, AttributeValue] = {
     Map(TrueFeature)
   }
-
-  override def name(): String = super.name()
 }
 case object Moving extends States {
   override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-
+  override def name(): String = "Moving"
   override def feature(d: Platoon): Map[String, AttributeValue] = {
     Map(TrueFeature)
   }
-
-  override def name(): String = "Moving"
 }
 case object Attacking extends States {
   override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
@@ -94,6 +92,7 @@ case object Idle extends States {
 
   override def name(): String = "Idle"
 }
+// TODO add retreat
 
 trait Features
 case object Uninitialized extends Features

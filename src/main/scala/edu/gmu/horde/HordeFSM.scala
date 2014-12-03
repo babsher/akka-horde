@@ -26,6 +26,7 @@ case class SetEnvironment(env: ActorRef)
 case class SetRoot(env: ActorRef)
 case class SetAttributeStore(store: ActorRef)
 case class Run(connect :Boolean, train :Boolean)
+case class Train(train :Boolean)
 case object Stop
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {

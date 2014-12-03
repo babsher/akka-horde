@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg.agents.Drone
 import weka.classifiers.Classifier
+import weka.classifiers.trees.J48
 import weka.core.Attribute
 
 import scala.concurrent.Await
@@ -20,15 +21,20 @@ import scala.concurrent.duration._
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S <: AgentState, D] {
+trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   this: FSM[S, D] =>
   var attributeStore : ActorRef = _
   var store :Map[S, ActorRef] = Map()
   var training = false
-  val models :Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
+  val targetAttribute = "nextState"
+  val target = new Attribute(targetAttribute)
+  for(state <- states) {
+    target.addStringValue(state.name)
+  }
+  lazy val models :Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
 
-  def loadModels(dir :String): Map[S, Classifier] = {
-    (for(state <- this.states; c = weka.core.SerializationHelper.read(dir + state.name))
+  def loadModels(dir :String) = {
+    (for(state <- this.states; c :Classifier = weka.core.SerializationHelper.read(dir + state.name).asInstanceOf[Classifier])
       yield (state -> c)) toMap
   }
   def states : Seq[S]
@@ -73,40 +79,44 @@ trait HordeAgentFSM[S <: AgentState, D] {
         stay
     }
 
-    def getNextState(currentState :S, features :Map[String, AttributeValue], toStates :Seq[To]) : S = {
-      val state = classifiy(features)
+    def getNextState(currState :S, features :Map[String, AttributeValue], toStates :Seq[To]) : S = {
+      val state = classifiy(currState, features)
       val s = toStates.filter(x => x.state.name == state)
       if(s.isEmpty) {
         log.debug("No state matching {}", state)
-        return currentState
+        return currState
       } else {
         return s(0).state
       }
     }
 
-    def classifiy(features :Map[String, AttributeValue]) : String = {
-      ""
+    def classifiy(currState :S, features :Map[String, AttributeValue]) : String = {
+      val i = instance(currState.attributes, features)
+      val next = models(currState).classifyInstance(i)
+      target.value(next.toInt)
     }
   }
 
   def store(fromState :S, toState :S) : Unit = {
     val storeActor = if(!store.contains(fromState)) {
-      val attr = Seq(new Attribute("nextState")) ++ fromState.attributes
-      val future = ask(attributeStore, NewAttributeStore(getClass.getCanonicalName, fromState.name, attr))(5 second)
+      val attr = Seq(target) ++ fromState.attributes
+      val future = ask(attributeStore, NewAttributeStore(agentName, fromState, attr))(5 second)
       Await.result(future, 5 seconds).asInstanceOf[ActorRef]
     } else {
       store(fromState)
     }
-    val instance = fromState.features(this) + ("nextState" -> StringValue(toState.name))
+    val instance = fromState.features(this) + (targetAttribute -> StringValue(toState.name))
     storeActor ! Write(instance)
   }
+
+  def agentName = getClass.getCanonicalName
 }
 
 trait AgentState {
-  def attributes() : Seq[Attribute] = ???
-  def features(agent :AnyRef) : Map[String, AttributeValue] = ???
+  def name : String
+  def attributes() : Seq[Attribute]
+  def features(agent :AnyRef) : Map[String, AttributeValue]
   def features(agent :AnyRef, msg :Any) :Map[String, AttributeValue] = {
     features(agent) + ("msg" -> StringValue(msg.toString))
   }
-  def name() : String = ???
 }
