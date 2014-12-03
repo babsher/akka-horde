@@ -1,14 +1,17 @@
 package edu.gmu.horde.env;
 
 import akka.actor.ActorRef;
+import com.google.common.collect.Lists;
 import edu.gmu.horde.zerg.NewUnit;
 import edu.gmu.horde.zerg.OnFrame;
 import edu.gmu.horde.zerg.env.HordeCommand;
+import edu.gmu.horde.zerg.env.MorphLarva;
 import jnibwapi.*;
 import jnibwapi.util.BWColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +31,7 @@ public class BWInterface {
     public final Queue<HordeCommand> commands;
     public final ActorRef env;
     public JNIBWAPI bwapi;
+    private static final Logger log = LoggerFactory.getLogger(BWInterface.class);
 
     public BWInterface(ActorRef e) {
         env = e;
@@ -62,6 +66,7 @@ public class BWInterface {
                 Thread.sleep(500);
             } catch (InterruptedException e) { }
         }
+        log.info("BW Interface Connected!");
     }
 
     public void shutdown() {
@@ -88,7 +93,7 @@ public class BWInterface {
         @Override
         public void connected() {
             this.bwInterface.connected.set(true);
-            log.info("BW Interface Connected!");
+            log.info("Connected Called");
         }
 
         @Override
@@ -110,15 +115,25 @@ public class BWInterface {
         public void matchFrame() {
             bwInterface.supplyCap.set(bwapi.getSelf().getSupplyTotal());
             bwInterface.currentSupply.set(bwapi.getSelf().getSupplyUsed());
+            List<HordeCommand> undoable = Lists.newArrayList();
             while(!bwInterface.commands.isEmpty()) {
                 HordeCommand cmd = bwInterface.commands.poll();
                 try {
-                    cmd.run(bwapi);
+                    if(cmd instanceof MorphLarva) {
+                        if(!bwapi.canMake(((MorphLarva)cmd).morphType())) {
+                            undoable.add(cmd);
+                        } else {
+                            cmd.run(bwapi);
+                        }
+                    } else {
+                        cmd.run(bwapi);
+                    }
                 } catch (Throwable e) {
                     log.error("Error while running command " + cmd, e);
                 }
             }
-            bwInterface.env.tell(new OnFrame(), null);
+            // add undoable commands to the list again
+//            bwInterface.commands.addAll(undoable);
         }
 
         @Override
@@ -167,10 +182,14 @@ public class BWInterface {
         }
 
         @Override
-        public void unitComplete(int unitID) {}
+        public void unitComplete(int unitID) {
+            unitCreate(unitID);
+        }
 
         @Override
-        public void unitMorph(int unitID) {}
+        public void unitMorph(int unitID) {
+            unitCreate(unitID);
+        }
 
         @Override
         public void unitRenegade(int unitID) {}

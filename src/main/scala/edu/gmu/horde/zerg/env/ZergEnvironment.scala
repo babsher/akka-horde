@@ -1,5 +1,7 @@
 package edu.gmu.horde.zerg.env
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor._
 import edu.gmu.horde.env.BWInterface
 import edu.gmu.horde.{Run, SetRoot, Environment}
@@ -10,6 +12,7 @@ import jnibwapi.{Unit => BUnit, JNIBWAPI, Region, UnitCommand, Position}
 import jnibwapi.types.UnitType.UnitTypes
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
 
 object ZergEnvironment {
   val log = LoggerFactory.getLogger(ZergEnvironment.getClass())
@@ -20,6 +23,7 @@ object ZergEnvironment {
 case class MoveToNearestMineral(id :Int)
 case class BuildBuilding(id :Int, buildingType :UnitType, region :Region)
 case class Supply(used :Int, total :Int)
+case object Tick
 
 trait HordeCommand {
   def run(bwapi :JNIBWAPI)
@@ -31,9 +35,16 @@ case class RightClickTarget(id :Int, target :Int) extends HordeCommand {
     u.rightClick(targetUnit, false)
   }
 }
+case class MorphLarva(id :Int, morphType :UnitType) extends HordeCommand {
+  override def run(bwapi :JNIBWAPI) = {
+    val u = bwapi.getUnit(id)
+    u.morph(morphType)
+  }
+}
 
 class ZergEnvironment extends Environment {
   import ZergEnvironment._
+  implicit val dispatcher = context.system.dispatcher
   val game = new BWInterface(context.self)
 
   override def receive =
@@ -43,13 +54,15 @@ class ZergEnvironment extends Environment {
           log.debug("Connecting to game")
           game.start()
         }
+        context.system.scheduler.schedule(1 seconds, 500 milliseconds, context.self, OnFrame)
       case OnFrame =>
-        while (!game.newUnits.isEmpty()) {
-          val id = game.newUnits.poll()
-          log.debug("Found new units: {}", id)
-          root ! NewUnit(id, game.units.get(id))
-          root ! Supply(game.currentSupply.get(), game.supplyCap.get())
-        }
+//        while (!game.newUnits.isEmpty()) {
+//          val id = game.newUnits.poll()
+//          log.debug("Found new units: {}", id)
+//          root ! NewUnit(id, game.units.get(id))
+//        }
+        root ! Supply(game.currentSupply.get(), game.supplyCap.get())
+        root ! OnFrame
       case NewUnit(id, u) =>
         root ! NewUnit(id, u)
       case MoveToNearestMineral(id: Int) =>
@@ -63,5 +76,8 @@ class ZergEnvironment extends Environment {
         val unit = game.bwapi.getUnit(id)
         // TODO compute good location
 //        game.commands add new UnitCommand(unit, UnitCommandTypes.Build, region.getCenter, buildingType.getID)
+      case msg @ MorphLarva(id, unitType) =>
+        log.debug("Trying to build {}", msg)
+        game.commands add msg
     }
 }
