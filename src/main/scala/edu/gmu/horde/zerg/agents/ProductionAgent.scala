@@ -1,7 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{Props, ActorRef, Actor}
-import edu.gmu.horde.SetManagers
+import edu.gmu.horde.{Train, SetManagers}
 import edu.gmu.horde.zerg.NewUnit
 import jnibwapi.Position
 import jnibwapi.types.UnitType
@@ -27,6 +27,8 @@ class ProductionAgent extends Actor {
             military ! NewUnit(id, unit)
         }
       }
+    case Train(train) =>
+      context.children.map(child => child ! Train(train))
   }
 
   def getBaseAgent(pos: Position) :ActorRef = {

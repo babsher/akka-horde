@@ -83,15 +83,10 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
 
   startWith(Drone.Start, Drone.Uninitialized)
 
-  when(Drone.Idle) {
-    case Event(Harvest, _) =>
-      goto(Harvest)
-  }
-
   from(Drone.Idle) {
     Seq(
       To(Drone.Moving, action(Drone.Idle, Drone.Moving)),
-      To(Drone.Build, action(Drone.Idle, Drone.Moving)),
+      To(Drone.Build, action(Drone.Idle, Drone.Build)),
       To(Drone.Harvest, action(Drone.Idle, Drone.Harvest))
     )
   }
@@ -115,9 +110,21 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
 
   private def action(fromState: Drone.States, toState: Drone.States): (Event) => Unit = {
     (fromState, toState) match {
+      case Start -> Idle => startAction
       case _ -> Build => buildAction
       case _ -> Harvest => harvestAction
+      case _ -> Moving => moveAction
+      case tran @ _ => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
     }
+  }
+
+  private def startAction :(Event) => Unit = {
+    case Event(Harvest, _) =>
+      goto(Harvest)
+  }
+
+  private def moveAction :(Event) => Unit = {
+    case Event(Moving,_) => println("moving")
   }
 
   private def buildAction :(Event) => Unit = {

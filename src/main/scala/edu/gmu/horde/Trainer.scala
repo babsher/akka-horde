@@ -8,11 +8,16 @@ import weka.classifiers.trees.J48
 import weka.core.{Instance, Attribute, Instances}
 import weka.core.converters.ArffLoader
 
-trait Trainer {
+
+/**
+ * Writes models to directory
+ */
+trait Trainer extends AttributeIO {
   def train(states :Seq[AgentState], dirName :String, agentName :String) : Map[AgentState, Classifier] = {
     val loader  = new ArffLoader
 
     def trainState(state :AgentState) :Classifier = {
+      // TODO refactor to AttributeIO
       val dir = new File(dirName + state.name)
       var instances: Instances = null
       for (file <- dir.listFiles()) {

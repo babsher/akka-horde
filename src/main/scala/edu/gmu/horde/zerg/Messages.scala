@@ -12,7 +12,3 @@ case class UnitUpdate(id: Int, unit: jnibwapi.Unit)
 case class UnitCmd(id: Int, cmd: UnitCommand)
 case class OnFrame()
 case class NewUnit(id: Int, unit: jnibwapi.Unit)
-
-case object Activate
-case object Train
-case object Run

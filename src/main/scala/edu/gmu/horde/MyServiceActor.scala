@@ -65,7 +65,7 @@ class MyServiceActor extends Actor with ActorLogging {
 
   def redirect(uri :String, text :String) = {
     HttpResponse(
-      status = StatusCodes.PermanentRedirect,
+      status = StatusCodes.MovedPermanently,
       headers = Location(uri) :: Nil,
       entity = HttpEntity(`text/html`, <html>
         <body>
@@ -82,13 +82,13 @@ class MyServiceActor extends Actor with ActorLogging {
           <p>Defined resources:</p>
           <ul>
             <li><a href="/ping">ping</a></li>
-            <li><hr></hr></li>
+            <hr></hr>
             <li><a href="/api/start">Start</a></li>
             <li><a href="/api/run">Run</a></li>
             <li><a href="/api/train">Train</a></li>
-            <li><hr></hr></li>
+            <hr></hr>
             <li><a href="/server-stats">server-stats</a></li>
-            <li><hr></hr></li>
+            <hr></hr>
             <li><a href="/api/stop">Stop</a></li>
           </ul>
         </body>

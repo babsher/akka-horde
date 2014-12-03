@@ -44,6 +44,15 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
 
   def from(fromState: S)(toStates: Seq[To]) {
     when(fromState) {
+      case Event(Train(train), _) =>
+        training = train
+        if(training) {
+          cancelTimer("action")
+        } else {
+          setTimer("action", Action, 500 millis, true)
+        }
+        context.children.map(child => child ! Train(training))
+        stay
       case Event(Action, _) =>
         val nextState = getNextState(fromState, fromState.features(this), toStates)
         if(nextState == fromState) {

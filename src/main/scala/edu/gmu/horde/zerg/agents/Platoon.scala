@@ -76,21 +76,17 @@ case object Moving extends States {
 }
 case object Attacking extends States {
   override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-
+  override def name(): String = "Attacking"
   override def feature(d: Platoon): Map[String, AttributeValue] = {
     Map(TrueFeature)
   }
-
-  override def name(): String = "Attacking"
 }
 case object Idle extends States {
   override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-
+  override def name(): String = "Idle"
   override def feature(d: Platoon): Map[String, AttributeValue] = {
     Map(TrueFeature)
   }
-
-  override def name(): String = "Idle"
 }
 // TODO add retreat
 
