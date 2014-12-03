@@ -133,7 +133,7 @@ public class BWInterface {
                 }
             }
             // add undoable commands to the list again
-//            bwInterface.commands.addAll(undoable);
+            bwInterface.commands.addAll(undoable);
         }
 
         @Override

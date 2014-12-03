@@ -56,15 +56,15 @@ class ZergEnvironment extends Environment {
         }
         context.system.scheduler.schedule(1 seconds, 500 milliseconds, context.self, OnFrame)
       case OnFrame =>
-//        while (!game.newUnits.isEmpty()) {
-//          val id = game.newUnits.poll()
-//          log.debug("Found new units: {}", id)
-//          root ! NewUnit(id, game.units.get(id))
-//        }
+        while (!game.newUnits.isEmpty()) {
+          val id = game.newUnits.remove()
+          log.debug("Found new units: {}", id)
+          root ! NewUnit(id, game.units.get(id))
+        }
         root ! Supply(game.currentSupply.get(), game.supplyCap.get())
         root ! OnFrame
-      case NewUnit(id, u) =>
-        root ! NewUnit(id, u)
+//      case NewUnit(id, u) =>
+//        root ! NewUnit(id, u)
       case MoveToNearestMineral(id: Int) =>
         val unit = game.bwapi.getUnit(id)
         val minerals = game.bwapi.getNeutralUnits.asScala.filter(mineralTypes contains _.getType)
