@@ -4,6 +4,6 @@ import akka.actor._
 import edu.gmu.horde.{DoubleValue, AttributeValue}
 import jnibwapi.{Unit => BUnit}
 
-abstract class UnitAgent(val id :Int, val unit :jnibwapi.Unit, val env :ActorRef) {
+abstract class UnitAgent(val id :Int, var unit :BUnit) {
 
 }

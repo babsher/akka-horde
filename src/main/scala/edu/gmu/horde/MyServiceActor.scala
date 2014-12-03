@@ -38,7 +38,7 @@ class MyServiceActor extends Actor with ActorLogging {
 
     case HttpRequest(GET, Uri.Path("/api/start"), _, _, _) =>
       horde ! Scenario("demo")
-      sender ! HttpResponse(entity = "Started")
+      sender ! redirect("/", "Started")
       // TODO add redirect to index
     case HttpRequest(GET, Uri.Path("/api/run"), _, _, _) =>
       horde ! Run(true, false)
@@ -65,11 +65,12 @@ class MyServiceActor extends Actor with ActorLogging {
 
   def redirect(uri :String, text :String) = {
     HttpResponse(
-      status = StatusCodes.MovedPermanently,
-      headers = Location(uri) :: Nil,
       entity = HttpEntity(`text/html`, <html>
+        <head>
+          <meta http-equiv="refresh" content="3;url=/" />
+        </head>
         <body>
-          <h1>{text}</h1>
+          <h1><blink>{text}</blink></h1>
         </body>
       </html>.toString()))
   }

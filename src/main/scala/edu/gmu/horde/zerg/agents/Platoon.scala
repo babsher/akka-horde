@@ -1,10 +1,11 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{Props, LoggingFSM, FSM, Actor}
+import akka.actor._
 import edu.gmu.horde._
 import weka.core.Attribute
 
-class Platoon extends Actor with LoggingFSM[States, Features] with HordeAgentFSM[States, Features] {
+class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[States, Features] with HordeAgentFSM[States, Features] {
+  override var env: ActorRef = envRef
 
   startWith(Start, Uninitialized)
 

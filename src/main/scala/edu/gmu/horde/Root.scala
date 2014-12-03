@@ -27,8 +27,8 @@ class Root extends Actor {
   }
 
   def createManagers(connect :Boolean, train :Boolean) :Unit = {
-    miliatry = context.actorOf(Props[MilitaryAgent])
-    production = context.actorOf(Props[ProductionAgent])
+    miliatry = context.actorOf(MilitaryAgent.props(env))
+    production = context.actorOf(ProductionAgent.props(env))
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set

@@ -1,14 +1,17 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{Props, ActorRef, Actor}
-import edu.gmu.horde.{Train, SetManagers}
+import edu.gmu.horde.{SetEnvironment, Train, SetManagers}
 import edu.gmu.horde.zerg.NewUnit
 import jnibwapi.Position
 import jnibwapi.types.UnitType
 import jnibwapi.types.UnitType.UnitTypes
 
-class ProductionAgent extends Actor {
+object ProductionAgent {
+  def props(env :ActorRef) = Props(new ProductionAgent(env))
+}
 
+class ProductionAgent(env :ActorRef) extends Actor {
   var military :ActorRef = null
   var larva :Set[Int] = Set[Int]()
 
@@ -32,6 +35,6 @@ class ProductionAgent extends Actor {
   }
 
   def getBaseAgent(pos: Position) :ActorRef = {
-    context.actorOf(Props[BaseManagerAgent])
+    context.actorOf(BaseManagerAgent.props(env))
   }
 }

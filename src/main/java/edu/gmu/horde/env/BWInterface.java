@@ -57,7 +57,7 @@ public class BWInterface {
         reader.start();
         while(!connected.get()) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(500);
             } catch (InterruptedException e) { }
         }
     }
@@ -78,6 +78,7 @@ public class BWInterface {
 
         @Override
         public void run() {
+            log.debug("Starting bridge");
             bwapi.start();
             bwInterface.connected.set(false);
         }

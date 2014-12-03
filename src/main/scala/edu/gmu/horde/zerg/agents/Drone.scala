@@ -72,11 +72,11 @@ object Drone {
   trait Features
   case object Uninitialized extends Features
 
-  def props(id: Int, unit : BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
+  def props(id: Int, unit : BUnit, env :ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
-
+class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, unit) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
+  override var env: ActorRef = envRef
   import Drone._
 
   override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Moving :: Drone.Retreat :: Nil
@@ -102,10 +102,16 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
   from(Drone.Moving) {
     Seq(
       To(Drone.Harvest, action(Drone.Moving, Drone.Harvest)),
-      To(Drone.Attacking, action(Drone.Moving, Drone.Harvest))
+      To(Drone.Attacking, action(Drone.Moving, Drone.Attacking))
     )
   }
 
+  from(Drone.Harvest) {
+    Seq(
+      To(Drone.Moving, action(Drone.Harvest, Drone.Moving)),
+      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking))
+    )
+  }
   initialize
 
   private def action(fromState: Drone.States, toState: Drone.States): (Event) => Unit = {
@@ -136,7 +142,8 @@ class Drone(id: Int, unit: BUnit, env: ActorRef) extends UnitAgent(id, unit, env
     case Event(Harvest, _) => println("Harvest")
   }
 
-  onTransition{
-    case _ -> Harvest => env ! MoveToNearestMineral(id)
+  onTransition {
+    case _ -> Harvest =>
+      env ! MoveToNearestMineral(id)
   }
 }

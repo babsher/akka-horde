@@ -1,6 +1,6 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{Props, ActorRef, Actor}
+import akka.actor.{ActorLogging, Props, ActorRef, Actor}
 import edu.gmu.horde.zerg.agents.Drone.Harvest
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import edu.gmu.horde.{Train, SetEnvironment, SetManagers}
@@ -8,15 +8,17 @@ import edu.gmu.horde.zerg.NewUnit
 import jnibwapi.types.UnitType
 import jnibwapi.Position
 
-class BaseManagerAgent extends Actor {
+object BaseManagerAgent {
+  def props(env: ActorRef) = Props(new BaseManagerAgent(env))
+}
 
-  var env: ActorRef = null
+class BaseManagerAgent(var env: ActorRef) extends Actor with ActorLogging {
 
   override def receive: Receive = {
-    case SetEnvironment(env: ActorRef) =>
-      this.env = env
-    case NewUnit(id: Int, unit: jnibwapi.Unit) =>
+    case msg @ NewUnit(id: Int, unit: jnibwapi.Unit) =>
+      log.debug("Creating drone with {}", msg)
       val drone = context.actorOf(Drone.props(id, unit, env))
+      drone ! SetEnvironment(env)
       drone ! Harvest
     case msg @ Train(train) =>
       context.children.map(child => child ! msg)

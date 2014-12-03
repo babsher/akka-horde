@@ -28,6 +28,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   var training = false
   val targetAttribute = "nextState"
   val target = new Attribute(targetAttribute)
+  var env :ActorRef
   for(state <- states) {
     target.addStringValue(state.name)
   }
@@ -44,6 +45,9 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
 
   def from(fromState: S)(toStates: Seq[To]) {
     when(fromState) {
+      case Event(SetEnvironment(ref), _) =>
+        env = ref
+        stay
       case Event(Train(train), _) =>
         training = train
         if(training) {
@@ -89,17 +93,17 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
     }
 
     def getNextState(currState :S, features :Map[String, AttributeValue], toStates :Seq[To]) : S = {
-      val state = classifiy(currState, features)
-      val s = toStates.filter(x => x.state.name == state)
+      val state = classify(currState, features)
+      val s = toStates.filter(x => x.state.name equals state)
       if(s.isEmpty) {
-        log.debug("No state matching {}", state)
+        log.debug("No state matching {} in toStates: {}", state, toStates)
         return currState
       } else {
         return s(0).state
       }
     }
 
-    def classifiy(currState :S, features :Map[String, AttributeValue]) : String = {
+    def classify(currState :S, features :Map[String, AttributeValue]) : String = {
       val i = instance(currState.attributes, features)
       val next = models(currState).classifyInstance(i)
       target.value(next.toInt)
