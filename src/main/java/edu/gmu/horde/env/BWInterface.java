@@ -3,7 +3,9 @@ package edu.gmu.horde.env;
 import akka.actor.ActorRef;
 import edu.gmu.horde.zerg.NewUnit;
 import edu.gmu.horde.zerg.OnFrame;
+import edu.gmu.horde.zerg.env.HordeCommand;
 import jnibwapi.*;
+import jnibwapi.util.BWColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,7 @@ public class BWInterface {
     public final Map<Integer, Unit> units;
     public final Map<Integer, Unit> enemyUnits;
     public final Queue<Integer> newUnits;
-    public final Queue<UnitCommand> commands;
+    public final Queue<HordeCommand> commands;
     public final ActorRef env;
     public JNIBWAPI bwapi;
 
@@ -93,6 +95,8 @@ public class BWInterface {
         public void matchStart() {
             bwapi.enableUserInput();
             bwapi.setGameSpeed(0);
+            bwapi.sendText("Started horde interface");
+            bwapi.drawIDs(true);
 
             bwInterface.enemyUnits.clear();
             bwInterface.units.clear();
@@ -107,9 +111,13 @@ public class BWInterface {
             bwInterface.supplyCap.set(bwapi.getSelf().getSupplyTotal());
             bwInterface.currentSupply.set(bwapi.getSelf().getSupplyUsed());
             while(!bwInterface.commands.isEmpty()) {
-                bwapi.issueCommand(bwInterface.commands.poll());
+                HordeCommand cmd = bwInterface.commands.poll();
+                try {
+                    cmd.run(bwapi);
+                } catch (Throwable e) {
+                    log.error("Error while running command " + cmd, e);
+                }
             }
-
             bwInterface.env.tell(new OnFrame(), null);
         }
 

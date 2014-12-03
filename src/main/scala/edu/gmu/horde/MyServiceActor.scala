@@ -67,7 +67,7 @@ class MyServiceActor extends Actor with ActorLogging {
     HttpResponse(
       entity = HttpEntity(`text/html`, <html>
         <head>
-          <meta http-equiv="refresh" content="3;url=/" />
+          <meta http-equiv="refresh" content="1;url=/" />
         </head>
         <body>
           <h1><blink>{text}</blink></h1>

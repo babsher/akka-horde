@@ -77,6 +77,7 @@ object Drone {
 
 class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, unit) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
   override var env: ActorRef = envRef
+  log.debug("Created drone {}", id)
   import Drone._
 
   override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Moving :: Drone.Retreat :: Nil
@@ -126,6 +127,7 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
 
   private def startAction :(Event) => Unit = {
     case Event(Harvest, _) =>
+      log.debug("Going to harvest")
       goto(Harvest)
   }
 
