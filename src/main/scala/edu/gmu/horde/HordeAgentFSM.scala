@@ -106,6 +106,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
     def classify(currState :S, features :Map[String, AttributeValue]) : String = {
       val i = instance(currState.attributes, features)
       val next = models(currState).classifyInstance(i)
+      // TODO models(currState).distributionForInstance(i)
       target.value(next.toInt)
     }
   }
