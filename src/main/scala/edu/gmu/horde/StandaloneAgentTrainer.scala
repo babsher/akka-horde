@@ -19,14 +19,23 @@ object StandaloneAgentTrainer extends App with Trainer {
   case class UnitOrder(order: HordeOrderType, unitPos: HordePosition, target: Option[HordeTarget], targetPos: Option[HordePosition])
 
   implicit def toHorde(pos: Position): HordePosition = {
+    if(pos == null) {
+      return null
+    }
     HordePosition(pos.getPX, pos.getPY)
   }
 
   implicit def toHorde(unit: BUnit): HordeTarget = {
+    if(unit == null) {
+      return null
+    }
     HordeTarget(unit.getID, unit.getPosition)
   }
 
   implicit def toHorde(order: OrderType): HordeOrderType = {
+    if(order == null) {
+      return null
+    }
     cmdName(order.getID)
   }
 
@@ -230,7 +239,7 @@ object StandaloneAgentTrainer extends App with Trainer {
           if (lastCommands.entryExists(drone.getID, _ == cmd)) {
             writeCommand(bwapi.getFrameCount, drone, cmd)
           } else {
-            log.debug("Order already exists " + cmd + " in " + lastCommands(drone.getID))
+            log.trace("Order already exists " + cmd + " in " + lastCommands(drone.getID))
           }
         } else {
           writeCommand(bwapi.getFrameCount, drone, cmd)
