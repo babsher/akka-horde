@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
 
 assemblySettings
 
-mainClass in assembly := Some("edu.gmu.horde.Boot")
+mainClass in assembly := Some("edu.gmu.horde.StandaloneAgentTrainer")
 
 val deployTask = TaskKey[Unit]("deploy", "Copies assembly jar to remote location")
 
