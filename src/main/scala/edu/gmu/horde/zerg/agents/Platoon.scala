@@ -4,8 +4,52 @@ import akka.actor._
 import edu.gmu.horde._
 import weka.core.Attribute
 
-class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[States, Features] with HordeAgentFSM[States, Features] {
+object Platoon {
+  trait States extends AgentState with SimpleFeatures {
+
+    override def features(d : AnyRef) = {
+      feature(d.asInstanceOf[Platoon])
+    }
+    def feature(d : Platoon) : Map[String, AttributeValue]
+  }
+  case object Start extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Start"
+    override def feature(d: Platoon): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Moving extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Moving"
+    override def feature(d: Platoon): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Attacking extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Attacking"
+    override def feature(d: Platoon): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  case object Idle extends States {
+    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def name(): String = "Idle"
+    override def feature(d: Platoon): Map[String, AttributeValue] = {
+      Map(TrueFeature)
+    }
+  }
+  // TODO add retreat
+
+  trait Features
+  case object Uninitialized extends Features
+  case object MoveTarget extends Features
+}
+
+class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
   override var env: ActorRef = envRef
+  import Platoon._
 
   startWith(Start, Uninitialized)
 
@@ -53,44 +97,3 @@ class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[States, Featur
     stay
   }
 }
-
-trait States extends AgentState with SimpleFeatures {
-
-  override def features(d : AnyRef) = {
-    feature(d.asInstanceOf[Platoon])
-  }
-  def feature(d : Platoon) : Map[String, AttributeValue]
-}
-case object Start extends States {
-  override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-  override def name(): String = "Start"
-  override def feature(d: Platoon): Map[String, AttributeValue] = {
-    Map(TrueFeature)
-  }
-}
-case object Moving extends States {
-  override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-  override def name(): String = "Moving"
-  override def feature(d: Platoon): Map[String, AttributeValue] = {
-    Map(TrueFeature)
-  }
-}
-case object Attacking extends States {
-  override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-  override def name(): String = "Attacking"
-  override def feature(d: Platoon): Map[String, AttributeValue] = {
-    Map(TrueFeature)
-  }
-}
-case object Idle extends States {
-  override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-  override def name(): String = "Idle"
-  override def feature(d: Platoon): Map[String, AttributeValue] = {
-    Map(TrueFeature)
-  }
-}
-// TODO add retreat
-
-trait Features
-case object Uninitialized extends Features
-case object MoveTarget extends Features

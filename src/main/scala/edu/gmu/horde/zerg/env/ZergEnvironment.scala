@@ -21,6 +21,7 @@ object ZergEnvironment {
 }
 
 case class MoveToNearestMineral(id :Int)
+case class AttackNearest(id :Int)
 case class BuildBuilding(id :Int, buildingType :UnitType, region :Region)
 case class Supply(used :Int, total :Int)
 case object Tick
@@ -39,6 +40,13 @@ case class MorphLarva(id :Int, morphType :UnitType) extends HordeCommand {
   override def run(bwapi :JNIBWAPI) = {
     val u = bwapi.getUnit(id)
     u.morph(morphType)
+  }
+}
+case class AttackUnit(id :Int, targetId :Int) extends HordeCommand {
+  override def run(bwapi :JNIBWAPI) :Unit = {
+    val u = bwapi.getUnit(id)
+    val target = bwapi.getUnit(targetId)
+    u.attack(target, false)
   }
 }
 
@@ -67,17 +75,24 @@ class ZergEnvironment extends Environment {
 //        root ! NewUnit(id, u)
       case MoveToNearestMineral(id: Int) =>
         val unit = game.bwapi.getUnit(id)
-        val minerals = game.bwapi.getNeutralUnits.asScala.filter(mineralTypes contains _.getType)
-        val nearest = minerals.min(Ordering.by((m: BUnit) => m.getPosition.getApproxWDistance (unit.getPosition)))
+        val nearest = game.bwapi.getNeutralUnits.asScala.
+          filter(mineralTypes contains _.getType).
+          min(Ordering.by((m: BUnit) => m.getPosition.getApproxWDistance (unit.getPosition)))
         log.debug("Sending {} to nearest mineral {}", id, nearest.getPosition)
         game.commands add RightClickTarget(id, nearest.getID)
         log.debug("Commands {} size {}", game.commands, game.commands.size)
       case BuildBuilding(id :Int, buildingType :UnitType, region :Region) =>
         val unit = game.bwapi.getUnit(id)
         // TODO compute good location
-//        game.commands add new UnitCommand(unit, UnitCommandTypes.Build, region.getCenter, buildingType.getID)
       case msg @ MorphLarva(id, unitType) =>
         log.debug("Trying to build {}", msg)
         game.commands add msg
+      case msg @ AttackNearest(id) =>
+        log.debug("{} attacking", id)
+        val unit = game.bwapi.getUnit(id)
+        val nearest = game.bwapi.getEnemyUnits.asScala.
+          filter(u => u.isVisible).
+          min(Ordering.by((u: BUnit) => u.getPosition.getApproxWDistance (unit.getPosition)))
+        game.commands add AttackUnit(id, nearest.getID)
     }
 }

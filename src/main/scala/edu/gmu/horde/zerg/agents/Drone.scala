@@ -3,7 +3,7 @@ package edu.gmu.horde.zerg.agents
 import akka.actor.{LoggingFSM, ActorRef, Props}
 import edu.gmu.horde.zerg.UnitFeatures
 import edu.gmu.horde._
-import edu.gmu.horde.zerg.env.{BuildBuilding, MoveToNearestMineral}
+import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
 
@@ -22,7 +22,7 @@ object Drone {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(UnitPositionXName), new Attribute(UnitPositionYName))
     override def name() : String = "Harvest"
     override def features(d : Drone) : Map[String, AttributeValue] = {
-        implicit val unit = d.asInstanceOf[Drone].unit
+        implicit val unit = d.unit
         Map(UnitPositionX, UnitPositionY)
     }
   }
@@ -33,18 +33,13 @@ object Drone {
       Map(TrueFeature)
     }
   }
-  case object Moving extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-    override def name(): String = "Moving"
-    override def features(d: Drone): Map[String, AttributeValue] = {
-      Map(TrueFeature)
-    }
-  }
   case object Attacking extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Attacking"
     override def features(d: Drone): Map[String, AttributeValue] = {
-      Map(TrueFeature)
+      implicit val unit = d.unit
+      implicit val env = d.env
+      Map(EnemyDistance)
     }
   }
   case object Retreat extends States {
@@ -80,13 +75,12 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
   log.debug("Created drone {}", id)
   import Drone._
 
-  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Moving :: Drone.Retreat :: Nil
+  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Retreat :: Nil
 
   startWith(Drone.Start, Drone.Uninitialized)
 
   from(Drone.Idle) {
     Seq(
-      To(Drone.Moving, action(Drone.Idle, Drone.Moving)),
       To(Drone.Build, action(Drone.Idle, Drone.Build)),
       To(Drone.Harvest, action(Drone.Idle, Drone.Harvest))
     )
@@ -94,23 +88,20 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
 
   from(Drone.Start) {
     Seq(
-      To(Drone.Moving, action(Drone.Start, Drone.Moving)),
       To(Drone.Attacking, action(Drone.Start, Drone.Attacking)),
       To(Drone.Harvest, action(Drone.Start, Drone.Harvest))
     )
   }
 
-  from(Drone.Moving) {
+  from(Drone.Harvest) {
     Seq(
-      To(Drone.Harvest, action(Drone.Moving, Drone.Harvest)),
-      To(Drone.Attacking, action(Drone.Moving, Drone.Attacking))
+      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking))
     )
   }
 
-  from(Drone.Harvest) {
+  from(Drone.Attacking) {
     Seq(
-      To(Drone.Moving, action(Drone.Harvest, Drone.Moving)),
-      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking))
+      To(Drone.Harvest, action(Drone.Attacking, Drone.Harvest))
     )
   }
   initialize
@@ -120,19 +111,19 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
       case Start -> Idle => startAction
       case _ -> Build => buildAction
       case _ -> Harvest => harvestAction
-      case _ -> Moving => moveAction
+      case _ -> Attacking => attackAction
       case tran @ _ => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
     }
+  }
+
+  private def attackAction :(Event) => Unit = {
+    case Event(Harvest, _) => println("Harvest")
   }
 
   private def startAction :(Event) => Unit = {
     case Event(Harvest, _) =>
       log.debug("Going to harvest")
       goto(Harvest)
-  }
-
-  private def moveAction :(Event) => Unit = {
-    case Event(Moving,_) => println("moving")
   }
 
   private def buildAction :(Event) => Unit = {
@@ -147,5 +138,7 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
   onTransition {
     case _ -> Harvest =>
       env ! MoveToNearestMineral(id)
+    case _ -> Attacking =>
+      env ! AttackNearest(id)
   }
 }
