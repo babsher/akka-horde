@@ -1,8 +1,8 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{LoggingFSM, ActorRef, Props}
-import edu.gmu.horde.zerg.UnitFeatures
+import akka.actor.{ActorRef, LoggingFSM, Props}
 import edu.gmu.horde._
+import edu.gmu.horde.zerg.UnitFeatures
 import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
@@ -11,21 +11,23 @@ import weka.core.Attribute
 object Drone {
 
   trait States extends AgentState with UnitFeatures with SimpleFeatures {
-    override def features(d : AnyRef) = {
+    override def features(d: AnyRef) = {
       d match {
         case Drone => features(d.asInstanceOf[Drone])
       }
     }
-    def features(d : Drone) : Map[String, AttributeValue]
+    def features(d: Drone): Map[String, AttributeValue]
   }
+
   case object Harvest extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(UnitPositionXName), new Attribute(UnitPositionYName))
-    override def name() : String = "Harvest"
-    override def features(d : Drone) : Map[String, AttributeValue] = {
-        implicit val unit = d.unit
-        Map(UnitPositionX, UnitPositionY)
+    override def name(): String = "Harvest"
+    override def features(d: Drone): Map[String, AttributeValue] = {
+      implicit val unit = d.unit
+      Map(UnitPositionX, UnitPositionY)
     }
   }
+
   case object Start extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Start"
@@ -33,6 +35,7 @@ object Drone {
       Map(TrueFeature)
     }
   }
+
   case object Attacking extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Attacking"
@@ -42,6 +45,7 @@ object Drone {
       Map(EnemyDistance)
     }
   }
+
   case object Retreat extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Retreat"
@@ -49,6 +53,7 @@ object Drone {
       Map(TrueFeature)
     }
   }
+
   case object Build extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Retreat"
@@ -56,6 +61,7 @@ object Drone {
       Map(TrueFeature)
     }
   }
+
   case object Idle extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Idle"
@@ -66,16 +72,19 @@ object Drone {
 
   trait Features
   case object Uninitialized extends Features
-
-  def props(id: Int, unit : BUnit, env :ActorRef): Props = Props(new Drone(id, unit, env))
+  def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, unit) with LoggingFSM[Drone.States, Drone.Features] with HordeAgentFSM[Drone.States, Drone.Features] {
+class Drone(id: Int, unit: BUnit, val envRef: ActorRef) extends UnitAgent(id, unit, envRef)
+    with LoggingFSM[Drone.States, Drone.Features]
+    with HordeAgentFSM[Drone.States, Drone.Features] {
+
   override var env: ActorRef = envRef
   log.debug("Created drone {}", id)
-  import Drone._
 
-  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Retreat :: Nil
+  import edu.gmu.horde.zerg.agents.Drone._
+
+  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Attacking :: Drone.Harvest :: Drone.Retreat :: Nil
 
   startWith(Drone.Start, Drone.Uninitialized)
 
@@ -89,19 +98,28 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
   from(Drone.Start) {
     Seq(
       To(Drone.Attacking, action(Drone.Start, Drone.Attacking)),
-      To(Drone.Harvest, action(Drone.Start, Drone.Harvest))
+      To(Drone.Harvest, action(Drone.Start, Drone.Harvest)),
+      To(Drone.Build, action(Drone.Start, Drone.Build))
     )
   }
 
   from(Drone.Harvest) {
     Seq(
-      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking))
+      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking)),
+      To(Drone.Build, action(Drone.Harvest, Drone.Build))
     )
   }
 
   from(Drone.Attacking) {
     Seq(
-      To(Drone.Harvest, action(Drone.Attacking, Drone.Harvest))
+      To(Drone.Harvest, action(Drone.Attacking, Drone.Harvest)),
+      To(Drone.Build, action(Drone.Attacking, Drone.Build))
+    )
+  }
+
+  from(Drone.Build) {
+    Seq(
+      To(Drone.Idle, action(Drone.Build, Drone.Idle))
     )
   }
   initialize
@@ -112,26 +130,26 @@ class Drone(id: Int, unit: BUnit, val envRef :ActorRef) extends UnitAgent(id, un
       case _ -> Build => buildAction
       case _ -> Harvest => harvestAction
       case _ -> Attacking => attackAction
-      case tran @ _ => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
+      case tran@_ => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
     }
   }
 
-  private def attackAction :(Event) => Unit = {
+  private def attackAction: (Event) => Unit = {
     case Event(Harvest, _) => println("Harvest")
   }
 
-  private def startAction :(Event) => Unit = {
+  private def startAction: (Event) => Unit = {
     case Event(Harvest, _) =>
       log.debug("Going to harvest")
       goto(Harvest)
   }
 
-  private def buildAction :(Event) => Unit = {
+  private def buildAction: (Event) => Unit = {
     case Event(BuildBuilding(unitId, buildingType, region), _) =>
       env ! BuildBuilding(id, buildingType, region)
   }
 
-  private def harvestAction :(Event) => Unit = {
+  private def harvestAction: (Event) => Unit = {
     case Event(Harvest, _) => println("Harvest")
   }
 

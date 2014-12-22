@@ -232,6 +232,7 @@ object StandaloneAgentTrainer extends App with Trainer {
     }
 
     override def matchFrame(): Unit = {
+      // TODO map cmd to state changes
       val drones = bwapi.getUnits(self).filter(u => u.getType == UnitTypes.Zerg_Drone)
       for (drone <- drones) {
         val cmd = UnitOrder(drone.getOrder, drone.getPosition, Some(drone.getTarget), Some(drone.getTargetPosition))

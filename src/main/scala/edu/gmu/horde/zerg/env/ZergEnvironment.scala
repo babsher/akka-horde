@@ -16,7 +16,6 @@ import scala.concurrent.duration._
 
 object ZergEnvironment {
   val log = LoggerFactory.getLogger(ZergEnvironment.getClass())
-
   val mineralTypes = Set(UnitTypes.Resource_Mineral_Field)
 }
 
@@ -62,7 +61,7 @@ class ZergEnvironment extends Environment {
           log.debug("Connecting to game")
           game.start()
         }
-        context.system.scheduler.schedule(1 seconds, 500 milliseconds, context.self, OnFrame)
+        context.system.scheduler.schedule(1 seconds, 100 milliseconds, context.self, OnFrame)
       case OnFrame =>
         while (!game.newUnits.isEmpty()) {
           val id = game.newUnits.remove()
@@ -71,8 +70,6 @@ class ZergEnvironment extends Environment {
         }
         root ! Supply(game.currentSupply.get(), game.supplyCap.get())
         root ! OnFrame
-//      case NewUnit(id, u) =>
-//        root ! NewUnit(id, u)
       case MoveToNearestMineral(id: Int) =>
         val unit = game.bwapi.getUnit(id)
         val nearest = game.bwapi.getNeutralUnits.asScala.

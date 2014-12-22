@@ -18,6 +18,7 @@ trait UnitFeatures {
 
   val EnemyDistanceName = "EnemyDistance"
   def EnemyDistance(implicit unit :BUnit,  env :ActorRef) : (String, AttributeValue) = {
+
     (EnemyDistanceName, DoubleValue(1))
   }
 }
