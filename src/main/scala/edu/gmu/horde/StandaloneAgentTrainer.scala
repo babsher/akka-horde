@@ -1,7 +1,8 @@
 package edu.gmu.horde
 
-import java.io.{PrintStream, File}
+import java.io._
 
+import jnibwapi.types.OrderType.OrderTypes
 import jnibwapi.types.{OrderType, UnitCommandType}
 import jnibwapi.types.UnitType.UnitTypes
 import jnibwapi.{Unit => BUnit, Position, BWAPIEventListener, Player, JNIBWAPI}
@@ -15,8 +16,9 @@ object StandaloneAgentTrainer extends App with Trainer {
 
   case class HordeOrderType(id: Int, name: String)
   case class HordePosition(x: Int, y: Int)
-  case class HordeTarget(unit: Int, pos: HordePosition)
-  case class UnitOrder(order: HordeOrderType, unitPos: HordePosition, target: Option[HordeTarget], targetPos: Option[HordePosition])
+  case class HordeTarget(unit: Int, unitType: Int, pos: HordePosition)
+  case class HordeUnit(unitId: Int, unitType: Int)
+  case class UnitOrder(order: HordeOrderType, unitPos: HordePosition, target: Option[HordeTarget], targetPos: Option[HordePosition], atTarget: List[HordeUnit])
 
   implicit def toHorde(pos: Position): HordePosition = {
     if(pos == null) {
@@ -29,7 +31,7 @@ object StandaloneAgentTrainer extends App with Trainer {
     if(unit == null) {
       return null
     }
-    HordeTarget(unit.getID, unit.getPosition)
+    HordeTarget(unit.getID, unit.getType.getID, unit.getPosition)
   }
 
   implicit def toHorde(order: OrderType): HordeOrderType = {
@@ -212,7 +214,7 @@ object StandaloneAgentTrainer extends App with Trainer {
   val log = LoggerFactory.getLogger(StandaloneAgentTrainer.getClass)
   val lastCommands = new HashMap[Int, Set[UnitOrder]] with MultiMap[Int, UnitOrder]
   val outputFile = new File("data.out")
-  val out = new PrintStream(outputFile)
+  val out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(outputFile)))
   val bwapi = new JNIBWAPI(new BWListener(), false)
   var self: Player = null
   bwapi.start()
@@ -233,11 +235,20 @@ object StandaloneAgentTrainer extends App with Trainer {
 
     override def matchFrame(): Unit = {
       // TODO map cmd to state changes
+      // TODO create actors in training and send Set state
       val drones = bwapi.getUnits(self).filter(u => u.getType == UnitTypes.Zerg_Drone)
       for (drone <- drones) {
-        val cmd = UnitOrder(drone.getOrder, drone.getPosition, Some(drone.getTarget), Some(drone.getTargetPosition))
+        if(drone.getSecondaryOrder != OrderTypes.Nothing) {
+          log.debug("Not nothing")
+        }
+        val atTarget = bwapi.getUnitsOnTile(drone.getTargetPosition).map(u => HordeUnit(u.getID, u.getTypeID)).toList
+        val cmd = UnitOrder(drone.getOrder,
+          drone.getPosition,
+          Some(drone.getTarget),
+          Some(drone.getTargetPosition),
+          atTarget)
         if (lastCommands contains drone.getID) {
-          if (lastCommands.entryExists(drone.getID, _ == cmd)) {
+          if (lastCommands.entryExists(drone.getID, _ != cmd.order.id)) {
             writeCommand(bwapi.getFrameCount, drone, cmd)
           } else {
             log.trace("Order already exists " + cmd + " in " + lastCommands(drone.getID))
@@ -251,6 +262,11 @@ object StandaloneAgentTrainer extends App with Trainer {
     def writeCommand(frame: Int, u: BUnit, cmd: UnitOrder) = {
       out.println(frame + " " + u.getID + " " + cmd)
       lastCommands.addBinding(u.getID, cmd)
+    }
+
+    override def matchEnd(b: Boolean): Unit = {
+      out.flush()
+      out.close()
     }
 
     override def keyPressed(i: Int): Unit = {}
@@ -278,8 +294,6 @@ object StandaloneAgentTrainer extends App with Trainer {
     override def unitCreate(i: Int): Unit = {}
 
     override def unitRenegade(i: Int): Unit = {}
-
-    override def matchEnd(b: Boolean): Unit = {}
 
     override def unitHide(i: Int): Unit = {}
 

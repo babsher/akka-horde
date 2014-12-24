@@ -2,7 +2,7 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ActorRef, LoggingFSM, Props}
 import edu.gmu.horde._
-import edu.gmu.horde.zerg.UnitFeatures
+import edu.gmu.horde.zerg.{Subscribe, UnitFeatures}
 import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
@@ -75,11 +75,11 @@ object Drone {
   def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
 }
 
-class Drone(id: Int, unit: BUnit, val envRef: ActorRef) extends UnitAgent(id, unit, envRef)
-    with LoggingFSM[Drone.States, Drone.Features]
-    with HordeAgentFSM[Drone.States, Drone.Features] {
+class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAgentFSM[Drone.States, Drone.Features]
+  with LoggingFSM[Drone.States, Drone.Features] {
 
   override var env: ActorRef = envRef
+  env ! Subscribe(id, this.context.self)
   log.debug("Created drone {}", id)
 
   import edu.gmu.horde.zerg.agents.Drone._
