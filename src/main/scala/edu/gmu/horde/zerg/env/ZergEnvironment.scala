@@ -1,11 +1,9 @@
 package edu.gmu.horde.zerg.env
 
 import java.util.concurrent.TimeUnit
-
 import akka.actor._
 import edu.gmu.horde.actors.Environment
 import edu.gmu.horde.env.BWInterface
-import edu.gmu.horde.Run
 import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
 import jnibwapi.types.UnitCommandType.UnitCommandTypes
 import jnibwapi.types.UnitType
@@ -14,6 +12,7 @@ import jnibwapi.types.UnitType.UnitTypes
 import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+import edu.gmu.horde.actors.Run
 
 object ZergEnvironment {
   val log = LoggerFactory.getLogger(ZergEnvironment.getClass())

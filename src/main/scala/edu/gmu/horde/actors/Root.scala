@@ -3,7 +3,6 @@ package edu.gmu.horde.actors
 import akka.actor.{Actor, ActorRef}
 import edu.gmu.horde.zerg.NewUnit
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
-import edu.gmu.horde.Train
 
 case class SetManagers(production :ActorRef, military :ActorRef)
 

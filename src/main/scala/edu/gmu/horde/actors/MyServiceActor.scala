@@ -1,7 +1,6 @@
 package edu.gmu.horde.actors
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import edu.gmu.horde.Run
 import spray.can.Http
 import spray.can.server.Stats
 import spray.http.HttpMethods._
@@ -20,7 +19,6 @@ class MyServiceActor extends Actor with ActorLogging {
 
     case HttpRequest(GET, Uri.Path("/"), _, _, _) =>
       sender ! index
-
     case HttpRequest(GET, Uri.Path("/api/start"), _, _, _) =>
       horde ! Scenario("demo")
       sender ! redirect("/", "Started")
@@ -88,7 +86,7 @@ class MyServiceActor extends Actor with ActorLogging {
         <body>
           <h1>HttpServer Stats</h1>
           <table>
-            <tr><td>uptime:</td><td>{s.uptime.formatHMS}</td></tr>
+            <tr><td>uptime:</td><td>{s.uptime.toString()}</td></tr>
             <tr><td>totalRequests:</td><td>{s.totalRequests}</td></tr>
             <tr><td>openRequests:</td><td>{s.openRequests}</td></tr>
             <tr><td>maxOpenRequests:</td><td>{s.maxOpenRequests}</td></tr>

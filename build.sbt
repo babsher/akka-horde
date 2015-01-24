@@ -2,21 +2,19 @@ import AssemblyKeys._
 
 name := "akka-horde"
 
-version := "1.0"
+version := "1.1"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.5"
 
 javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
 scalacOptions += "-target:jvm-1.7"
 
-classpathTypes ++= Set("dll")
-
 resolvers ++= Seq(
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 )
 
-val akkaV = "2.3.6"
+val akkaV = "2.3.9"
 val sprayV = "1.3.2"
 
 libraryDependencies ++= Seq(

@@ -1,6 +1,7 @@
 package edu.gmu.horde.actors
 
 import akka.actor.{ActorRef, FSM}
+import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.storage._
 import AttributeStore.NewAttributeStore

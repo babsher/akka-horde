@@ -1,7 +1,6 @@
 package edu.gmu.horde.features
 
 import akka.actor.ActorRef
-import edu.gmu.horde.DoubleValue
 import edu.gmu.horde.storage.{DoubleValue, AttributeValue}
 import jnibwapi.{Unit => BUnit}
 
