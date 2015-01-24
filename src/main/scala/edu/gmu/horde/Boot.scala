@@ -3,6 +3,7 @@ package edu.gmu.horde
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import akka.io.IO
+import edu.gmu.horde.actors.MyServiceActor
 import spray.can.Http
 import akka.pattern.ask
 import scala.concurrent.duration._

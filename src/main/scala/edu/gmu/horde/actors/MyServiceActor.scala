@@ -1,27 +1,12 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
-import akka.io.IO
-import spray.http.HttpHeaders.Location
-
-import scala.concurrent.duration._
-import akka.pattern.ask
-import akka.util.Timeout
-import akka.actor._
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import edu.gmu.horde.Run
 import spray.can.Http
 import spray.can.server.Stats
-import spray.util._
+import spray.http.HttpMethods._
+import spray.http.MediaTypes._
 import spray.http._
-import HttpMethods._
-import MediaTypes._
-import spray.can.Http.RegisterChunkHandler
-import akka.actor.{ActorLogging, Props, ActorRef, Actor}
-import akka.util.Timeout
-import spray.can.Http
-import spray.routing._
-import spray.http._
-import MediaTypes._
-
-import scala.concurrent.duration._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor

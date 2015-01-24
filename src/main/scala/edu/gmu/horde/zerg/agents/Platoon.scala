@@ -2,6 +2,9 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor._
 import edu.gmu.horde._
+import edu.gmu.horde.actors.{AgentState, HordeAgentFSM}
+import edu.gmu.horde.features.SimpleFeatures
+import edu.gmu.horde.storage.AttributeValue
 import weka.core.Attribute
 
 object Platoon {

@@ -1,11 +1,11 @@
-package edu.gmu.horde
-
-import java.io.File
+package edu.gmu.horde.storage
 
 import akka.actor.{Actor, Props}
+import edu.gmu.horde.actors.AgentState
+import edu.gmu.horde.storage
 import org.slf4j.LoggerFactory
 import weka.core.converters.{ArffSaver, Saver}
-import weka.core.{Attribute, FastVector, Instance, Instances}
+import weka.core.{Attribute, Instances}
 
 import scala.collection.immutable.List
 
@@ -24,7 +24,7 @@ object AttributeStorage {
 
 class AttributeStorage(val directory :String, val agentType :String, val state :AgentState, val attributes :Seq[Attribute]) extends Actor
   with AttributeIO {
-  implicit val log = edu.gmu.horde.AttributeStorage.log
+  implicit val log = storage.AttributeStorage.log
 
   var instances: Seq[Map[String, AttributeValue]] = List()
   val attrInfo = getAttributes(attributes)

@@ -1,8 +1,8 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
 import akka.actor._
-import akka.event.EventBus
-import edu.gmu.horde.zerg.{Publish, Unsubscribe, Subscribe, UnitUpdate}
+import akka.event.{LookupClassification, EventBus}
+import edu.gmu.horde.zerg.{Publish, Subscribe, UnitUpdate, Unsubscribe}
 import org.slf4j.LoggerFactory
 
 object Environment {
@@ -12,8 +12,7 @@ object Environment {
 final case class MsgEnvelope(payload: UnitUpdate)
 
 class Environment extends Actor {
-  import Environment.log
-  import akka.event.LookupClassification
+  import edu.gmu.horde.actors.Environment.log
 
   /**
    * Publishes the payload of the MsgEnvelope when the topic of the

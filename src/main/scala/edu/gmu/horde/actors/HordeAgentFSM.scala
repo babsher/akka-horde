@@ -1,12 +1,11 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
-import akka.pattern.ask
-import akka.actor.{ActorContext, ActorRef, LoggingFSM, FSM}
+import akka.actor.{ActorRef, FSM}
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde.AttributeStore.NewAttributeStore
-import edu.gmu.horde.zerg.agents.Drone
+import edu.gmu.horde.storage._
+import AttributeStore.NewAttributeStore
+import edu.gmu.horde._
 import weka.classifiers.Classifier
-import weka.classifiers.trees.J48
 import weka.core.Attribute
 
 import scala.concurrent.Await

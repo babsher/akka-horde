@@ -1,16 +1,16 @@
-package edu.gmu.horde
+package edu.gmu.horde.train
 
 import java.io._
-
+import edu.gmu.horde.train.Trainer
+import jnibwapi.types.OrderType
 import jnibwapi.types.OrderType.OrderTypes
-import jnibwapi.types.{OrderType, UnitCommandType}
-import jnibwapi.types.UnitType.UnitTypes
-import jnibwapi.{Unit => BUnit, Position, BWAPIEventListener, Player, JNIBWAPI}
 import jnibwapi.types.RaceType.RaceTypes
+import jnibwapi.types.UnitType.UnitTypes
+import jnibwapi.{BWAPIEventListener, JNIBWAPI, Player, Position, Unit => BUnit}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
-import collection.mutable.{HashMap, MultiMap, Set}
+import scala.collection.mutable.{HashMap, MultiMap, Set}
 
 object StandaloneAgentTrainer extends App with Trainer {
 

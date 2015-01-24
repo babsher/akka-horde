@@ -1,12 +1,12 @@
-package edu.gmu.horde
+package edu.gmu.horde.storage
 
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import akka.actor.{Props, ActorRef, Actor}
-import akka.actor.Actor.Receive
+import akka.actor.{Actor, ActorRef, Props}
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde.AttributeStore.{AStore, NewAttributeStore}
+import edu.gmu.horde.actors.AgentState
+import edu.gmu.horde.storage.AttributeStore.{AStore, NewAttributeStore}
 import weka.core.Attribute
 
 object AttributeStore {

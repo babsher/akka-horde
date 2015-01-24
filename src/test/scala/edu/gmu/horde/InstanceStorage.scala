@@ -5,6 +5,8 @@ import javax.management.AttributeValueExp
 import akka.actor.{Props, ActorSystem, Actor}
 import akka.actor.Actor.Receive
 import akka.testkit.{TestActorRef, ImplicitSender, TestKit}
+import edu.gmu.horde.actors.AgentState
+import edu.gmu.horde.storage._
 import edu.gmu.horde.zerg.agents.Drone
 import edu.gmu.horde.zerg.{Publish, UnitUpdate, Subscribe}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}

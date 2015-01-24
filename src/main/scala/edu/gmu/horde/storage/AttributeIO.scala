@@ -1,10 +1,11 @@
-package edu.gmu.horde
+package edu.gmu.horde.storage
 
 import java.io.File
 
 import com.google.common.io.Files
-import org.slf4j.{LoggerFactory, Logger}
-import weka.core.{FastVector, Attribute, Instance}
+import edu.gmu.horde.actors.AgentState
+import org.slf4j.{Logger, LoggerFactory}
+import weka.core.{Attribute, FastVector, Instance}
 
 trait AttributeIO {
   private val log :Logger = LoggerFactory.getLogger(this.getClass)

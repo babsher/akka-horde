@@ -1,6 +1,7 @@
 package edu.gmu.horde
 
 import com.typesafe.config.ConfigFactory
+import edu.gmu.horde.actors._
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.junit._
 import akka.testkit._

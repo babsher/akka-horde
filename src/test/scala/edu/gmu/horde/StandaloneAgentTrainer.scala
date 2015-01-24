@@ -1,6 +1,7 @@
 package edu.gmu.horde
 
-import edu.gmu.horde.StandaloneAgentTrainer.HordePosition
+import edu.gmu.horde.train.StandaloneAgentTrainer
+import StandaloneAgentTrainer.HordePosition
 import org.scalatest._
 
 class StandaloneAgentTrainerSpec extends WordSpecLike {

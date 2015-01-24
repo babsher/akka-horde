@@ -1,7 +1,7 @@
-package edu.gmu.horde
+package edu.gmu.horde.train
 
 import akka.actor.Actor
-import akka.actor.Actor.Receive
+import edu.gmu.horde.actors.Train
 
 /**
  * Sends messages to agents for training

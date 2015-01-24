@@ -1,9 +1,9 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
 import akka.actor._
+import edu.gmu.horde.storage.AttributeStore
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.slf4j.LoggerFactory
-import scala.concurrent.duration._
 
 case object HordeFSM {
   def logger = LoggerFactory.getLogger(this.getClass)
@@ -30,7 +30,7 @@ case class Train(train :Boolean)
 case object Stop
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
-  import HordeFSM.logger
+  import edu.gmu.horde.actors.HordeFSM.logger
 
   var env :ActorRef = null
   var root :ActorRef = null

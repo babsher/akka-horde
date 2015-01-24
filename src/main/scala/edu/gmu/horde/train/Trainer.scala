@@ -1,12 +1,13 @@
-package edu.gmu.horde
+package edu.gmu.horde.train
 
 import java.io.File
 import java.util.Enumeration
-
+import edu.gmu.horde.actors.AgentState
+import edu.gmu.horde.storage.AttributeIO
 import weka.classifiers.Classifier
 import weka.classifiers.trees.J48
-import weka.core.{Instance, Attribute, Instances}
 import weka.core.converters.ArffLoader
+import weka.core.{Attribute, Instance, Instances}
 
 
 /**

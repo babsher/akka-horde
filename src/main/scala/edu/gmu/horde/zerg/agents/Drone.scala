@@ -2,7 +2,10 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ActorRef, LoggingFSM, Props}
 import edu.gmu.horde._
-import edu.gmu.horde.zerg.{Subscribe, UnitFeatures}
+import edu.gmu.horde.actors.{AgentState, HordeAgentFSM}
+import edu.gmu.horde.features.{UnitFeatures, SimpleFeatures}
+import edu.gmu.horde.storage.AttributeValue
+import edu.gmu.horde.zerg.Subscribe
 import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute

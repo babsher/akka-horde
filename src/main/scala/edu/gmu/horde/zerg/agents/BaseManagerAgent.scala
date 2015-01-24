@@ -1,9 +1,10 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ActorLogging, Props, ActorRef, Actor}
+import edu.gmu.horde.actors.{Train, SetEnvironment}
 import edu.gmu.horde.zerg.agents.Drone.Harvest
 import edu.gmu.horde.zerg.env.ZergEnvironment
-import edu.gmu.horde.{Train, SetEnvironment, SetManagers}
+import edu.gmu.horde.Train
 import edu.gmu.horde.zerg.NewUnit
 import jnibwapi.types.UnitType
 import jnibwapi.Position
