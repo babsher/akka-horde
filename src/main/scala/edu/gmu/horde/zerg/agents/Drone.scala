@@ -9,16 +9,12 @@ import edu.gmu.horde.zerg.Subscribe
 import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
 import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
+import akka.actor.FSM
 
 
 object Drone {
 
   trait States extends AgentState with UnitFeatures with SimpleFeatures {
-    override def features(d: AnyRef) = {
-      d match {
-        case Drone => features(d.asInstanceOf[Drone])
-      }
-    }
     def features(d: Drone): Map[String, AttributeValue]
   }
 

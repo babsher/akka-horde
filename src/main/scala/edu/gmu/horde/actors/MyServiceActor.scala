@@ -6,6 +6,7 @@ import spray.can.server.Stats
 import spray.http.HttpMethods._
 import spray.http.MediaTypes._
 import spray.http._
+import akka.actor.ActorSystem
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -34,7 +35,6 @@ class MyServiceActor extends Actor with ActorLogging {
       sender ! redirect("/", "Stopping")
     case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
       sender ! HttpResponse(entity = "PONG!")
-
     case _: HttpRequest => sender ! HttpResponse(status = 404, entity = "Unknown resource!")
 
     case Timedout(HttpRequest(method, uri, _, _, _)) =>

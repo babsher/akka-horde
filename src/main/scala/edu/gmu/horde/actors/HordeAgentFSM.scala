@@ -1,6 +1,6 @@
 package edu.gmu.horde.actors
 
-import akka.actor.{ActorRef, FSM}
+import akka.actor.{ ActorRef, FSM }
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.storage._
@@ -8,7 +8,6 @@ import AttributeStore.NewAttributeStore
 import edu.gmu.horde._
 import weka.classifiers.Classifier
 import weka.core.Attribute
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -23,25 +22,32 @@ import scala.concurrent.duration._
  */
 trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   this: FSM[S, D] =>
-  var attributeStore : ActorRef = _
-  var store :Map[S, ActorRef] = Map()
+  var attributeStore: ActorRef = _
+  var store: Map[S, ActorRef] = Map()
   var training = false
+  var env: ActorRef
+  // create target attribute
   val targetAttribute = "nextState"
   val target = new Attribute(targetAttribute)
-  var env :ActorRef
-  for(state <- states) {
+  for (state <- states) {
     target.addStringValue(state.name)
   }
-  lazy val models :Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
+  lazy val models: Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
 
-  def loadModels(dir :String) = {
-    (for(state <- this.states; c :Classifier = weka.core.SerializationHelper.read(dir + state.name).asInstanceOf[Classifier])
+  def loadModels(dir: String) = {
+    (for (state <- this.states; c: Classifier = weka.core.SerializationHelper.read(dir + state.name).asInstanceOf[Classifier])
       yield (state -> c)) toMap
   }
-  def states : Seq[S]
+  def states: Seq[S]
 
-  case class To(state :S, f: (Event) => Unit)
-  case class Action()
+  trait Action {
+    def onEnter()
+    def onTick()
+    def onExit()
+  }
+  case class To(state: S, f: Action)
+  // tells agent to do compute its next action
+  case class ActionTimeout()
 
   def from(fromState: S)(toStates: Seq[To]) {
     when(fromState) {
@@ -50,16 +56,16 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
         stay
       case Event(Train(train), _) =>
         training = train
-        if(training) {
+        if (training) {
           cancelTimer("action")
         } else {
-          setTimer("action", Action, 500 millis, true)
+          setTimer("action", ActionTimeout, 500 millis, true)
         }
         context.children.map(child => child ! Train(training))
         stay
-      case Event(Action, _) =>
-        val nextState = getNextState(fromState, fromState.features(this), toStates)
-        if(nextState == fromState) {
+      case Event(ActionTimeout, _) =>
+        val nextState = getNextState(fromState, toStates)
+        if (nextState == fromState) {
           stay
         } else {
           goto(nextState)
@@ -67,70 +73,70 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
       case Event(SetAttributeStore(storeActor: ActorRef), _) =>
         attributeStore = storeActor
         stay
-      case e@Event(nextState: S, _) =>
-        val option = toStates.find((to: To) => to.state == nextState)
-        option match {
+      case Event(nextState: S, _) =>
+        toStates.find((to: To) => to.state == nextState) match {
           case Some(toState) =>
-            if(training) {
+            if (training) {
               store(fromState, toState.state)
             }
-            toState.f(e)
             goto(nextState)
           case None =>
+            log.warning("Unkown state " + nextState)
             stay
         }
-      case Event(msg @ _, _) =>
-        val nextState = getNextState(fromState, fromState.features(this, msg), toStates)
-        if(nextState == fromState) {
-          stay
-        } else {
-          goto(nextState)
-        }
 
-      case a@_ =>
+      case a @ _ =>
         log.debug("Unknown state transition {}", a)
         stay
     }
+  }
 
-    def getNextState(currState :S, features :Map[String, AttributeValue], toStates :Seq[To]) : S = {
-      val state = classify(currState, features)
-      val s = toStates.filter(x => x.state.name equals state)
-      if(s.isEmpty) {
-        log.debug("No state matching {} in toStates: {}", state, toStates)
-        return currState
-      } else {
-        return s(0).state
-      }
-    }
+  onTransition {
+    case fromState -> toState =>
+      getAction(fromState).onExit()
+      getAction(toState).onEnter()
+  }
 
-    def classify(currState :S, features :Map[String, AttributeValue]) : String = {
-      val i = instance(currState.attributes, features)
-      val next = models(currState).classifyInstance(i)
-      // TODO models(currState).distributionForInstance(i)
-      target.value(next.toInt)
+  def getNextState(currState: S, toStates: Seq[To]): S = {
+    val f = features(currState)
+    val state = classify(currState, f)
+    val s = toStates.filter(x => x.state.name equals state)
+    if (s.isEmpty) {
+      log.debug("No state matching {} in toStates: {}", state, toStates)
+      return currState
+    } else {
+      return s(0).state
     }
   }
 
-  def store(fromState :S, toState :S) : Unit = {
-    val storeActor = if(!store.contains(fromState)) {
-      val attr = Seq(target) ++ fromState.attributes
+  def classify(currState: S, features: Map[String, AttributeValue]): String = {
+    val i = instance(attributes(currState), features)
+    val next = models(currState).classifyInstance(i)
+    // TODO make probabilistic models(currState).distributionForInstance(i)
+    target.value(next.toInt)
+  }
+
+  def store(fromState: S, toState: S): Unit = {
+    val storeActor = if (!store.contains(fromState)) {
+      val attr = Seq(target) ++ attributes(fromState)
       val future = ask(attributeStore, NewAttributeStore(agentName, fromState, attr))(5 second)
       Await.result(future, 5 seconds).asInstanceOf[ActorRef]
     } else {
       store(fromState)
     }
-    val instance = fromState.features(this) + (targetAttribute -> StringValue(toState.name))
+    val instance = features(fromState) + (targetAttribute -> StringValue(toState.name))
     storeActor ! Write(instance)
   }
 
   def agentName = getClass.getCanonicalName
+
+  def getAction(State: S): Action
+  def attributes(state: S): Seq[Attribute]
+  def features(state: S): Map[String, AttributeValue]
 }
 
 trait AgentState {
-  def name : String
-  def attributes() : Seq[Attribute]
-  def features(agent :AnyRef) : Map[String, AttributeValue]
-  def features(agent :AnyRef, msg :Any) :Map[String, AttributeValue] = {
-    features(agent) + ("msg" -> StringValue(msg.toString))
-  }
+  import akka.actor.FSM.Event
+
+  def name: String
 }
