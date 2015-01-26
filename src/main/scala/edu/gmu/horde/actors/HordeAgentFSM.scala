@@ -40,12 +40,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   }
   def states: Seq[S]
 
-  trait Action {
-    def onEnter()
-    def onTick()
-    def onExit()
-  }
-  case class To(state: S, f: Action)
+  case class To(state: S)
   // tells agent to do compute its next action
   case class ActionTimeout()
 
@@ -66,8 +61,10 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
       case Event(ActionTimeout, _) =>
         val nextState = getNextState(fromState, toStates)
         if (nextState == fromState) {
+          getAction(nextState).onTick()
           stay
         } else {
+          // exit/enter actions handled by #onTransition
           goto(nextState)
         }
       case Event(SetAttributeStore(storeActor: ActorRef), _) =>
@@ -130,9 +127,15 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
 
   def agentName = getClass.getCanonicalName
 
-  def getAction(State: S): Action
+  def getAction(state: S): Action
   def attributes(state: S): Seq[Attribute]
   def features(state: S): Map[String, AttributeValue]
+}
+
+trait Action {
+  def onEnter()
+  def onTick()
+  def onExit()
 }
 
 trait AgentState {

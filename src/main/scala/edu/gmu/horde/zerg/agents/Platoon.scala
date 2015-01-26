@@ -2,7 +2,7 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor._
 import edu.gmu.horde._
-import edu.gmu.horde.actors.{AgentState, HordeAgentFSM}
+import edu.gmu.horde.actors.{ AgentState, HordeAgentFSM }
 import edu.gmu.horde.features.SimpleFeatures
 import edu.gmu.horde.storage.AttributeValue
 import weka.core.Attribute
@@ -10,10 +10,10 @@ import weka.core.Attribute
 object Platoon {
   trait States extends AgentState with SimpleFeatures {
 
-    override def features(d : AnyRef) = {
+    override def features(d: AnyRef) = {
       feature(d.asInstanceOf[Platoon])
     }
-    def feature(d : Platoon) : Map[String, AttributeValue]
+    def feature(d: Platoon): Map[String, AttributeValue]
   }
   case object Start extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
@@ -50,7 +50,7 @@ object Platoon {
   case object MoveTarget extends Features
 }
 
-class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
+class Platoon(val envRef: ActorRef) extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
   override var env: ActorRef = envRef
   import Platoon._
 
@@ -58,42 +58,27 @@ class Platoon(val envRef :ActorRef) extends Actor with LoggingFSM[Platoon.States
 
   override def states = Start :: Moving :: Attacking :: Idle :: Nil
 
-  onTransition {
-    case x -> y => log.debug("Entering " + y + " from " + x)
-  }
-
   from(Start) {
-    Seq(
-      To(Idle, action(Start, Idle))
-    )
+    To(Idle) :: Nil
   }
 
   from(Moving) {
-    Seq(
-      To(Attacking, action(Moving, Attacking)),
-      To(Idle, action(Moving, Idle))
-    )
+    To(Attacking) :: To(Idle) :: Nil
   }
 
   from(Attacking) {
-    Seq(
-      To(Moving, action(Attacking, Moving)),
-      To(Idle, action(Attacking, Idle))
-    )
+    To(Moving) :: To(Idle) :: Nil
   }
 
   from(Idle) {
-    Seq(
-      To(Moving, action(Idle, Moving)),
-      To(Attacking, action(Idle, Moving))
-    )
+    To(Moving) :: To(Attacking) :: Nil
   }
 
   initialize
 
   private def action(fromState: States, toState: States): (Event) => Unit = {
     case Event(nextState: States, _) =>
-    case _ =>
+    case _                           =>
   }
 
   private def onState(currentState: States, message: States) = {

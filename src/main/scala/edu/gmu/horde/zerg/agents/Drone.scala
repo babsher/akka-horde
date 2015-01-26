@@ -1,25 +1,26 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{ActorRef, LoggingFSM, Props}
+import akka.actor.{ ActorRef, LoggingFSM, Props }
 import edu.gmu.horde._
-import edu.gmu.horde.actors.{AgentState, HordeAgentFSM}
-import edu.gmu.horde.features.{UnitFeatures, SimpleFeatures}
+import edu.gmu.horde.actors.{ AgentState, HordeAgentFSM }
+import edu.gmu.horde.features.{ UnitFeatures, SimpleFeatures }
 import edu.gmu.horde.storage.AttributeValue
 import edu.gmu.horde.zerg.Subscribe
-import edu.gmu.horde.zerg.env.{AttackNearest, BuildBuilding, MoveToNearestMineral}
-import jnibwapi.{Unit => BUnit}
+import edu.gmu.horde.zerg.env.{ AttackNearest, BuildBuilding, MoveToNearestMineral }
+import jnibwapi.{ Unit => BUnit }
 import weka.core.Attribute
 import akka.actor.FSM
-
+import edu.gmu.horde.actors.Action
 
 object Drone {
 
-  trait States extends AgentState with UnitFeatures with SimpleFeatures {
+  trait States extends AgentState with UnitFeatures with SimpleFeatures with Action {
     def features(d: Drone): Map[String, AttributeValue]
+    def attributes: Seq[Attribute]
   }
 
   case object Harvest extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(UnitPositionXName), new Attribute(UnitPositionYName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(UnitPositionXName), new Attribute(UnitPositionYName))
     override def name(): String = "Harvest"
     override def features(d: Drone): Map[String, AttributeValue] = {
       implicit val unit = d.unit
@@ -28,7 +29,7 @@ object Drone {
   }
 
   case object Start extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Start"
     override def features(d: Drone): Map[String, AttributeValue] = {
       Map(TrueFeature)
@@ -36,7 +37,7 @@ object Drone {
   }
 
   case object Attacking extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Attacking"
     override def features(d: Drone): Map[String, AttributeValue] = {
       implicit val unit = d.unit
@@ -46,7 +47,7 @@ object Drone {
   }
 
   case object Retreat extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Retreat"
     override def features(d: Drone): Map[String, AttributeValue] = {
       Map(TrueFeature)
@@ -54,7 +55,7 @@ object Drone {
   }
 
   case object Build extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Retreat"
     override def features(d: Drone): Map[String, AttributeValue] = {
       Map(TrueFeature)
@@ -62,7 +63,7 @@ object Drone {
   }
 
   case object Idle extends States {
-    override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
+    override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Idle"
     override def features(d: Drone): Map[String, AttributeValue] = {
       Map(TrueFeature)
@@ -88,48 +89,32 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   startWith(Drone.Start, Drone.Uninitialized)
 
   from(Drone.Idle) {
-    Seq(
-      To(Drone.Build, action(Drone.Idle, Drone.Build)),
-      To(Drone.Harvest, action(Drone.Idle, Drone.Harvest))
-    )
+    To(Drone.Build) :: To(Drone.Harvest) :: Nil
   }
 
   from(Drone.Start) {
-    Seq(
-      To(Drone.Attacking, action(Drone.Start, Drone.Attacking)),
-      To(Drone.Harvest, action(Drone.Start, Drone.Harvest)),
-      To(Drone.Build, action(Drone.Start, Drone.Build))
-    )
+    To(Drone.Attacking) :: To(Drone.Harvest) :: To(Drone.Build) :: Nil
   }
 
   from(Drone.Harvest) {
-    Seq(
-      To(Drone.Attacking, action(Drone.Harvest, Drone.Attacking)),
-      To(Drone.Build, action(Drone.Harvest, Drone.Build))
-    )
+    To(Drone.Attacking) :: To(Drone.Build) :: Nil
   }
 
   from(Drone.Attacking) {
-    Seq(
-      To(Drone.Harvest, action(Drone.Attacking, Drone.Harvest)),
-      To(Drone.Build, action(Drone.Attacking, Drone.Build))
-    )
+    To(Drone.Harvest) :: To(Drone.Build) :: Nil
   }
-
   from(Drone.Build) {
-    Seq(
-      To(Drone.Idle, action(Drone.Build, Drone.Idle))
-    )
+    To(Drone.Idle) :: Nil
   }
   initialize
 
   private def action(fromState: Drone.States, toState: Drone.States): (Event) => Unit = {
     (fromState, toState) match {
-      case Start -> Idle => startAction
-      case _ -> Build => buildAction
-      case _ -> Harvest => harvestAction
+      case Start -> Idle  => startAction
+      case _ -> Build     => buildAction
+      case _ -> Harvest   => harvestAction
       case _ -> Attacking => attackAction
-      case tran@_ => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
+      case tran @ _       => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
     }
   }
 
@@ -152,10 +137,15 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
     case Event(Harvest, _) => println("Harvest")
   }
 
-  onTransition {
-    case _ -> Harvest =>
-      env ! MoveToNearestMineral(id)
-    case _ -> Attacking =>
-      env ! AttackNearest(id)
+  def attributes(state: Drone.States): Seq[Attribute] = {
+    state.attributes
+  }
+
+  def features(state: Drone.States): Map[String, AttributeValue] = {
+    state.features(this)
+  }
+
+  def getAction(state: Drone.States): Action = {
+    state
   }
 }
