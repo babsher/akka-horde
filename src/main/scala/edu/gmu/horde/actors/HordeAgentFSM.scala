@@ -136,10 +136,13 @@ trait Action {
   def onEnter()
   def onTick()
   def onExit()
+  def NullAction = identity()
+}
+
+trait HasAction[T] {
+  def getAction(t: T)
 }
 
 trait AgentState {
-  import akka.actor.FSM.Event
-
   def name: String
 }
