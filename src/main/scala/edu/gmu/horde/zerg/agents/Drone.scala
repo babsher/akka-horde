@@ -1,7 +1,6 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ ActorRef, LoggingFSM, Props }
-import edu.gmu.horde._
 import edu.gmu.horde.actors.{HasAction, AgentState, HordeAgentFSM, Action}
 import edu.gmu.horde.features.{ UnitFeatures, SimpleFeatures }
 import edu.gmu.horde.storage.AttributeValue
@@ -9,11 +8,9 @@ import edu.gmu.horde.zerg.Subscribe
 import edu.gmu.horde.zerg.env.{ AttackNearest, BuildBuilding, MoveToNearestMineral }
 import jnibwapi.{ Unit => BUnit }
 import weka.core.Attribute
-import akka.actor.FSM
 
 object Drone {
-
-  trait States extends AgentState with UnitFeatures with SimpleFeatures with HasAction[Drone] {
+  trait States extends AgentState with UnitFeatures with SimpleFeatures {
     def features(d: Drone): Map[String, AttributeValue]
     def attributes: Seq[Attribute]
   }
@@ -72,6 +69,7 @@ object Drone {
   trait Features
   case object Uninitialized extends Features
   def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
+  def id(id: Int): String = { "Drone-" + id}
 }
 
 class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAgentFSM[Drone.States, Drone.Features]
@@ -107,33 +105,21 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
   initialize
 
-  private def action(fromState: Drone.States, toState: Drone.States): (Event) => Unit = {
-    (fromState, toState) match {
-      case Start -> Idle  => startAction
-      case _ -> Build     => buildAction
-      case _ -> Harvest   => harvestAction
-      case _ -> Attacking => attackAction
-      case tran @ _       => (e) => log.debug("Unhandled transition {}, Event: {}", tran, e)
-    }
+  private def attackAction(): Unit = {
+    println("Attack")
   }
 
-  private def attackAction: (Event) => Unit = {
-    case Event(Harvest, _) => println("Harvest")
-  }
-
-  private def startAction: (Event) => Unit = {
-    case Event(Harvest, _) =>
-      log.debug("Going to harvest")
+  def startAction(): Unit = {
       goto(Harvest)
   }
 
-  private def buildAction: (Event) => Unit = {
+  private def buildAction(): Unit = {
     case Event(BuildBuilding(unitId, buildingType, region), _) =>
       env ! BuildBuilding(id, buildingType, region)
   }
 
-  private def harvestAction: (Event) => Unit = {
-    case Event(Harvest, _) => println("Harvest")
+  private def harvestAction(): Unit = {
+    env ! MoveToNearestMineral(id)
   }
 
   def attributes(state: Drone.States): Seq[Attribute] = {
@@ -145,6 +131,9 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
 
   def getAction(state: Drone.States): Action = {
-    state.getAction(this)
+    case Start =>     Action(() => {startAction()}, () => {}, () => {})
+    case Harvest =>   Action(() => {harvestAction()}, () => {}, () => {})
+    case Attacking => Action(() => {attackAction()}, () => {}, () => {})
+    case Build =>     Action(() => {buildAction()}, () => {}, () => {})
   }
 }

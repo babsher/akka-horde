@@ -23,7 +23,6 @@ class MyServiceActor extends Actor with ActorLogging {
     case HttpRequest(GET, Uri.Path("/api/start"), _, _, _) =>
       horde ! Scenario("demo")
       sender ! redirect("/", "Started")
-      // TODO add redirect to index
     case HttpRequest(GET, Uri.Path("/api/run"), _, _, _) =>
       horde ! Run(true, false)
       sender ! redirect("/", "Running")
@@ -33,8 +32,8 @@ class MyServiceActor extends Actor with ActorLogging {
     case HttpRequest(GET, Uri.Path("/api/stop"), _, _, _) =>
       horde ! Stop
       sender ! redirect("/", "Stopping")
-    case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
-      sender ! HttpResponse(entity = "PONG!")
+    case HttpRequest(GET, Uri.Path("/api/agents"), _, _, _) =>
+      horde ! SendAgents(sender)
     case _: HttpRequest => sender ! HttpResponse(status = 404, entity = "Unknown resource!")
 
     case Timedout(HttpRequest(method, uri, _, _, _)) =>
@@ -65,8 +64,6 @@ class MyServiceActor extends Actor with ActorLogging {
           <h1><i>Akka Horde</i>!</h1>
           <p>Defined resources:</p>
           <ul>
-            <li><a href="/ping">ping</a></li>
-            <hr></hr>
             <li><a href="/api/start">Start</a></li>
             <li><a href="/api/run">Run</a></li>
             <li><a href="/api/train">Train</a></li>

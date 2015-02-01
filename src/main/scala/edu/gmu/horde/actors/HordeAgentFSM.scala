@@ -1,13 +1,13 @@
 package edu.gmu.horde.actors
 
-import akka.actor.{ ActorRef, FSM }
+import akka.actor.{ ActorRef, FSM, Actor }
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.storage._
 import AttributeStore.NewAttributeStore
 import edu.gmu.horde._
 import weka.classifiers.Classifier
-import weka.core.Attribute
+import weka.core.{Instance, Attribute}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -78,7 +78,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
             }
             goto(nextState)
           case None =>
-            log.warning("Unkown state " + nextState)
+            log.warning("Unknown state " + nextState)
             stay
         }
 
@@ -107,10 +107,21 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   }
 
   def classify(currState: S, features: Map[String, AttributeValue]): String = {
-    val i = instance(attributes(currState), features)
+    val attr = attributes(currState)
+    sendAttributes(features)
+    val i = instance(attr, features)
     val next = models(currState).classifyInstance(i)
     // TODO make probabilistic models(currState).distributionForInstance(i)
     target.value(next.toInt)
+  }
+
+  case class AgentAttributes(features: Map[String, AttributeValue])
+
+  def sendAttributes(features: Map[String, AttributeValue]) = {
+    val msg = AgentAttributes(features)
+    for(l: ActorRef <- listeners) {
+      l ! msg
+    }
   }
 
   def store(fromState: S, toState: S): Unit = {
@@ -132,15 +143,11 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   def features(state: S): Map[String, AttributeValue]
 }
 
-trait Action {
-  def onEnter()
-  def onTick()
-  def onExit()
-  def NullAction = identity()
-}
+case class Action(onEnter: () => Unit, onTick: () => Unit, onExit: () => Unit);
 
 trait HasAction[T] {
-  def getAction(t: T)
+  def getAction(t: T): Action
+  def NullAction = Action(() => {}, () => {}, () => {})
 }
 
 trait AgentState {

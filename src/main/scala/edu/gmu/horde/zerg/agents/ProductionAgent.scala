@@ -1,7 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ActorLogging, Props, ActorRef, Actor}
-import edu.gmu.horde.actors.{SetManagers, Train}
+import edu.gmu.horde.actors.{NewAgent, SetManagers, Train}
 import edu.gmu.horde.zerg.env.{MorphLarva, Supply}
 import edu.gmu.horde.zerg.{OnFrame, NewUnit}
 import jnibwapi.Position
@@ -42,6 +42,8 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
       build()
     case Train(train) =>
       context.children.map(child => child ! Train(train))
+    case msg @ NewAgent(id, agent) =>
+      context.parent ! msg
   }
 
   def build() = {
