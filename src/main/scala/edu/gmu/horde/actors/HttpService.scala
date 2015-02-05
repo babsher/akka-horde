@@ -42,19 +42,3 @@ trait ZergHordeService extends Protocols {
 
   def config: Config
 }
-
-object ZergHordeService extends App with ZergHordeService {
-  override implicit val system = ActorSystem()
-  override implicit val executor = system.dispatcher
-  override implicit val materializer = FlowMaterializer()
-
-  override val config = ConfigFactory.load()
-  override val logger = Logging(system, getClass)
-  override val horde: ActorRef = createHorde()
-
-  Http().bind(interface = config.getString("http.interface"), port = config.getInt("http.port")).startHandlingWith(routes)
-
-  def createHorde(): ActorRef = {
-    system.actorOf(Props[HordeFSM])
-  }
-}
