@@ -118,10 +118,9 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   case class AgentAttributes(features: Map[String, AttributeValue])
 
   def sendAttributes(features: Map[String, AttributeValue]) = {
+    // Broadcase agent features to listeners
     val msg = AgentAttributes(features)
-    for(l: ActorRef <- listeners) {
-      l ! msg
-    }
+    gossip(msg)
   }
 
   def store(fromState: S, toState: S): Unit = {

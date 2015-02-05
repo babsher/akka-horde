@@ -34,7 +34,7 @@ import scala.concurrent.duration._
 import spray.json.DefaultJsonProtocol
 
 trait Protocols extends DefaultJsonProtocol {
-  implicit val agentInfoFormat = jsonFormat1(AgentInfo.apply)
+  implicit val agentInfoFormat = jsonFormat2(AgentInfo.apply)
   implicit val requestAgentsFormat = jsonFormat1(AgentSummary.apply)
 }
 
@@ -55,7 +55,7 @@ trait ZergHordeService extends Protocols {
     pathPrefix("api") {
       pathPrefix("agents") {
         get {
-          complete {
+          onComplete {
             (horde ? RequestAgentInfo()).mapTo[AgentSummary] {
               case Right(ipInfo) => ipInfo
               case Left(errorMessage) => BadRequest -> errorMessage

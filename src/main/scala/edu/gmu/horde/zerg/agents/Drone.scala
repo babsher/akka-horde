@@ -117,8 +117,9 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
 
   private def buildAction(): Unit = {
-    case Event(BuildBuilding(unitId, buildingType, region), _) =>
-      env ! BuildBuilding(id, buildingType, region)
+    val buildingType = null
+    val region = null
+    env ! BuildBuilding(id, buildingType, region)
   }
 
   private def harvestAction(): Unit = {
