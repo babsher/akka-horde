@@ -3,7 +3,6 @@ package edu.gmu.horde.actors
 import akka.actor.{Actor, ActorRef}
 import edu.gmu.horde.zerg.NewUnit
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
-import spray.http.HttpResponse
 
 case class SetManagers(production :ActorRef, military :ActorRef)
 case class NewAgent(id: String, agent: ActorRef, typeName: String)

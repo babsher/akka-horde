@@ -17,17 +17,20 @@ resolvers ++= Seq(
 )
 
 val akkaV = "2.3.9"
+val akkaStreamV = "1.0-M2"
 val sprayV = "1.3.2"
 
 libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.2",
   "ch.qos.logback" % "logback-core" % "1.1.2",
-  "io.spray" %% "spray-json" % "1.3.0",
-  "io.spray" %% "spray-can" % sprayV,
-  "io.spray" %% "spray-routing" % sprayV,
-  "com.typesafe.akka" %% "akka-actor" % akkaV,
-  "com.typesafe.akka" %% "akka-kernel" % akkaV,
-  "com.typesafe.akka" %% "akka-slf4j" % akkaV,
+  "com.typesafe.akka" %% "akka-stream-experimental"          % akkaStreamV,
+  "com.typesafe.akka" %% "akka-http-core-experimental"       % akkaStreamV,
+  "com.typesafe.akka" %% "akka-http-experimental"            % akkaStreamV,
+  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaStreamV,
+  "com.typesafe.akka" %% "akka-http-testkit-experimental"    % akkaStreamV,
+  "com.typesafe.akka" %% "akka-actor"   % akkaV,
+  "com.typesafe.akka" %% "akka-kernel"  % akkaV,
+  "com.typesafe.akka" %% "akka-slf4j"   % akkaV,
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.6.11",
   "com.google.guava" % "guava" % "18.0",
   "junit" % "junit" % "4.8.1" % "test",

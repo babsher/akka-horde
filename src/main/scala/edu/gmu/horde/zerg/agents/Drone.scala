@@ -1,6 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
 import akka.actor.{ ActorRef, LoggingFSM, Props }
+import edu.gmu.horde._
 import edu.gmu.horde.actors.{HasAction, AgentState, HordeAgentFSM, Action}
 import edu.gmu.horde.features.{ UnitFeatures, SimpleFeatures }
 import edu.gmu.horde.storage.AttributeValue
@@ -8,8 +9,10 @@ import edu.gmu.horde.zerg.Subscribe
 import edu.gmu.horde.zerg.env.{ AttackNearest, BuildBuilding, MoveToNearestMineral }
 import jnibwapi.{ Unit => BUnit }
 import weka.core.Attribute
+import akka.actor.FSM
 
 object Drone {
+
   trait States extends AgentState with UnitFeatures with SimpleFeatures {
     def features(d: Drone): Map[String, AttributeValue]
     def attributes: Seq[Attribute]
