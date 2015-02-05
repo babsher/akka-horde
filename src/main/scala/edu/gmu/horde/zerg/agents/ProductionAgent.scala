@@ -42,7 +42,7 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
       build()
     case Train(train) =>
       context.children.map(child => child ! Train(train))
-    case msg @ NewAgent(id, agent, this.getClass.getSimpleName) =>
+    case msg @ NewAgent(_,_,_) =>
       context.parent ! msg
   }
 

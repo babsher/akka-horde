@@ -55,12 +55,7 @@ trait ZergHordeService extends Protocols {
     pathPrefix("api") {
       pathPrefix("agents") {
         get {
-          onComplete {
-            (horde ? RequestAgentInfo()).mapTo[AgentSummary] {
-              case Right(ipInfo) => ipInfo
-              case Left(errorMessage) => BadRequest -> errorMessage
-            }
-          }
+          complete((horde ? RequestAgentInfo()).mapTo[ToResponseMarshallable])
         }
       }
     }
@@ -74,7 +69,7 @@ object ZergHordeService extends App with ZergHordeService {
 
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)
-  override var horde :ActorRef = createHorde()
+  override val horde: ActorRef = createHorde()
 
   Http().bind(interface = config.getString("http.interface"), port = config.getInt("http.port")).startHandlingWith(routes)
 

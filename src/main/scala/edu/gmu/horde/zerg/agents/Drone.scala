@@ -134,7 +134,7 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
     state.features(this)
   }
 
-  def getAction(state: Drone.States): Action = {
+  def getAction(state: Drone.States): Action = state match {
     case Start =>     Action(() => {startAction()}, () => {}, () => {})
     case Harvest =>   Action(() => {harvestAction()}, () => {}, () => {})
     case Attacking => Action(() => {attackAction()}, () => {}, () => {})

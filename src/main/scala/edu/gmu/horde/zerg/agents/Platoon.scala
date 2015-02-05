@@ -9,10 +9,6 @@ import weka.core.Attribute
 
 object Platoon {
   trait States extends AgentState with SimpleFeatures {
-
-    override def features(d: AnyRef) = {
-      feature(d.asInstanceOf[Platoon])
-    }
     def feature(d: Platoon): Map[String, AttributeValue]
   }
   case object Start extends States {
