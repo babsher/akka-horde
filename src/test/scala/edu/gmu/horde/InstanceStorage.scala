@@ -21,8 +21,8 @@ class AttributeStorageSpec extends WordSpecLike {
 
   class TestState extends AgentState {
     override def name: String = "TestState"
-    override def attributes(): Seq[Attribute] = attributes
-    override def features(agent: AnyRef): Map[String, AttributeValue] = ???
+    def attributes(): Seq[Attribute] = attributes
+    def features(agent: AnyRef): Map[String, AttributeValue] = ???
   }
 
   "Attribute actor" must {

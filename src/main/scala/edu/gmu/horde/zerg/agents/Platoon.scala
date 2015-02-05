@@ -2,40 +2,41 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor._
 import edu.gmu.horde._
-import edu.gmu.horde.actors.{ AgentState, HordeAgentFSM }
+import edu.gmu.horde.actors.{Action, AgentState, HordeAgentFSM}
 import edu.gmu.horde.features.SimpleFeatures
 import edu.gmu.horde.storage.AttributeValue
 import weka.core.Attribute
 
 object Platoon {
   trait States extends AgentState with SimpleFeatures {
-    def feature(d: Platoon): Map[String, AttributeValue]
+    def features(d: Platoon): Map[String, AttributeValue]
+    def attributes: Seq[Attribute]
   }
   case object Start extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Start"
-    override def feature(d: Platoon): Map[String, AttributeValue] = {
+    override def features(d: Platoon): Map[String, AttributeValue] = {
       Map(TrueFeature)
     }
   }
   case object Moving extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Moving"
-    override def feature(d: Platoon): Map[String, AttributeValue] = {
+    override def features(d: Platoon): Map[String, AttributeValue] = {
       Map(TrueFeature)
     }
   }
   case object Attacking extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Attacking"
-    override def feature(d: Platoon): Map[String, AttributeValue] = {
+    override def features(d: Platoon): Map[String, AttributeValue] = {
       Map(TrueFeature)
     }
   }
   case object Idle extends States {
     override def attributes(): Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
     override def name(): String = "Idle"
-    override def feature(d: Platoon): Map[String, AttributeValue] = {
+    override def features(d: Platoon): Map[String, AttributeValue] = {
       Map(TrueFeature)
     }
   }
@@ -80,4 +81,10 @@ class Platoon(val envRef: ActorRef) extends Actor with LoggingFSM[Platoon.States
   private def onState(currentState: States, message: States) = {
     stay
   }
+
+  override def getAction(state: States): Action = ???
+
+  override def features(state: States): Map[String, AttributeValue] = ???
+
+  override def attributes(state: States): Seq[Attribute] = ???
 }
