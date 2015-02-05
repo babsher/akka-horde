@@ -5,6 +5,9 @@ import edu.gmu.horde.zerg.NewUnit
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
 case class SetManagers(production :ActorRef, military :ActorRef)
+case class RequestAgentInfo()
+case class AgentInfo(name: String)
+case class AgentSummary(agents: Seq[AgentInfo])
 
 class Root extends Actor {
 

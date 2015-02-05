@@ -1,7 +1,7 @@
 package edu.gmu.horde.train
 
 import java.io._
-import edu.gmu.horde.train.Trainer
+import edu.gmu.horde.train._
 import jnibwapi.types.OrderType
 import jnibwapi.types.OrderType.OrderTypes
 import jnibwapi.types.RaceType.RaceTypes

@@ -13,7 +13,7 @@ import akka.actor.FSM
 
 object Drone {
 
-  trait States extends AgentState with UnitFeatures with SimpleFeatures with HasAction[Drone] {
+  trait States extends AgentState with UnitFeatures with SimpleFeatures {
     def features(d: Drone): Map[String, AttributeValue]
     def attributes: Seq[Attribute]
   }
@@ -144,7 +144,5 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
     state.features(this)
   }
 
-  def getAction(state: Drone.States): Action = {
-    state.getAction(this)
-  }
+  def getAction(state: Drone.States): Action = ???
 }
