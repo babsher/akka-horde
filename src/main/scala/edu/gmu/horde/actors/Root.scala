@@ -9,7 +9,7 @@ case class NewAgent(id: String, agent: ActorRef, typeName: String)
 case class SendAgents(sender: ActorRef)
 case class AgentInfo(name: String, agentType: String)
 case class AgentSummary(agents: Seq[AgentInfo])
-case class RequestAgentInfo()
+case class RequestAgentInfo(sender: ActorRef)
 
 class Root extends Actor {
   
@@ -30,9 +30,9 @@ class Root extends Actor {
     case msg @ NewAgent(id, agent, typeName) =>
       agents += id -> (agent, typeName)
       context.parent ! msg
-    case RequestAgentInfo() =>
+    case RequestAgentInfo(sender: ActorRef) =>
       val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(id, typeName)
-      context.sender() ! AgentSummary(a toSeq)
+      sender ! AgentSummary(a toSeq)
     case msg @ _ =>
       production ! msg
       miliatry ! msg

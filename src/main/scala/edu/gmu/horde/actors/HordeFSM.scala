@@ -33,7 +33,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   import edu.gmu.horde.actors.HordeFSM.logger
 
   var env :ActorRef = null
-  var root :ActorRef = null
+  var root :ActorRef = context.actorOf(Props[Root], "root")
   var store :ActorRef = null
 
   startWith(Idle, Uninitialized)
@@ -51,6 +51,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       stay
     case Event(Run(conn, train), _) =>
       doRun(conn, train)
+    case Event(RequestAgentInfo(null), _) =>
+      root ! RequestAgentInfo(context.sender())
+      stay
   }
 
   when(Running) {
