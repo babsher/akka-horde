@@ -51,3 +51,10 @@ project/plugins/project/
 logs
 testdataAgentClass
 /bin/
+
+.tmp
+node_modules/
+bower_components/
+.sass-cache/
+.tmp/
+dist/
