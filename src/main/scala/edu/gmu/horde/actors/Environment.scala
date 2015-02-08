@@ -2,7 +2,8 @@ package edu.gmu.horde.actors
 
 import akka.actor._
 import akka.event.{LookupClassification, EventBus}
-import edu.gmu.horde.zerg.{Publish, Subscribe, UnitUpdate, Unsubscribe}
+import edu.gmu.horde.UnitUpdate
+import edu.gmu.horde.zerg.UnitUpdate
 import org.slf4j.LoggerFactory
 
 object Environment {

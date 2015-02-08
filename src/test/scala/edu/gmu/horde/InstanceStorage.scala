@@ -8,7 +8,7 @@ import akka.testkit.{TestActorRef, ImplicitSender, TestKit}
 import edu.gmu.horde.actors.AgentState
 import edu.gmu.horde.storage._
 import edu.gmu.horde.zerg.agents.Drone
-import edu.gmu.horde.zerg.{Publish, UnitUpdate, Subscribe}
+import edu.gmu.horde.zerg.UnitUpdate
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import weka.core.{FastVector, Attribute, Instance}
 import scala.concurrent.duration._

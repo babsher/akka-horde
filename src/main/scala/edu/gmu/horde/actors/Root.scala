@@ -1,15 +1,8 @@
 package edu.gmu.horde.actors
 
 import akka.actor.{Actor, ActorRef}
-import edu.gmu.horde.zerg.NewUnit
+import edu.gmu.horde.NewUnit
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
-
-case class SetManagers(production :ActorRef, military :ActorRef)
-case class NewAgent(id: String, agent: ActorRef, typeName: String)
-case class SendAgents(sender: ActorRef)
-case class AgentInfo(name: String, agentType: String)
-case class AgentSummary(agents: Seq[AgentInfo])
-case class RequestAgentInfo(sender: ActorRef)
 
 class Root extends Actor {
   
@@ -27,8 +20,8 @@ class Root extends Actor {
       env = e
     case msg @ NewUnit(id, u) =>
       production ! msg
-    case msg @ NewAgent(id, agent, typeName) =>
-      agents += id -> (agent, typeName)
+    case msg @ NewAgent(agent, typeName) =>
+      agents += agent.path.toSerializationFormat -> (agent, typeName)
       context.parent ! msg
     case RequestAgentInfo(sender: ActorRef) =>
       val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(id, typeName)

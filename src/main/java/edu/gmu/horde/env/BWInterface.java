@@ -2,12 +2,10 @@ package edu.gmu.horde.env;
 
 import akka.actor.ActorRef;
 import com.google.common.collect.Lists;
-import edu.gmu.horde.zerg.NewUnit;
-import edu.gmu.horde.zerg.OnFrame;
+import edu.gmu.horde.NewUnit;
 import edu.gmu.horde.zerg.env.HordeCommand;
 import edu.gmu.horde.zerg.env.MorphLarva;
 import jnibwapi.*;
-import jnibwapi.util.BWColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

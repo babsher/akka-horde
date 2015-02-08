@@ -17,7 +17,7 @@ resolvers ++= Seq(
 )
 
 val akkaV = "2.3.9"
-val akkaStreamV = "1.0-M2"
+val akkaStreamV = "1.0-M3"
 val sprayV = "1.3.2"
 
 libraryDependencies ++= Seq(

@@ -4,7 +4,7 @@ import akka.actor._
 import akka.testkit.{ TestActors, DefaultTimeout, ImplicitSender, TestKit }
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.actors.Environment
-import edu.gmu.horde.zerg.{Publish, Subscribe, UnitUpdate}
+import edu.gmu.horde.zerg.UnitUpdate
 import org.junit.Test
 import scala.concurrent.duration._
 

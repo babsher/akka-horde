@@ -1,7 +1,10 @@
 package edu.gmu.horde.actors
 
 import akka.actor._
-import edu.gmu.horde.storage.AttributeStore
+import edu.gmu.horde._
+import edu.gmu.horde.storage.{AttributeValue, AttributeStore}
+import edu.gmu.horde.zerg._
+import edu.gmu.horde.zerg.env
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.slf4j.LoggerFactory
 
@@ -20,14 +23,6 @@ sealed trait HordeFSMData
 case object Uninitialized extends HordeFSMData
 case class EnvironmentData(env: ActorRef) extends HordeFSMData
 case object Halt extends HordeFSMData
-
-case class Scenario(name: String)
-case class SetEnvironment(env: ActorRef)
-case class SetRoot(env: ActorRef)
-case class SetAttributeStore(store: ActorRef)
-case class Run(connect :Boolean, train :Boolean)
-case class Train(train :Boolean)
-case object Stop
 
 class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   import edu.gmu.horde.actors.HordeFSM.logger
@@ -52,7 +47,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
     case Event(Run(conn, train), _) =>
       doRun(conn, train)
     case Event(RequestAgentInfo(null), _) =>
-      root ! RequestAgentInfo(context.sender())
+      if(root != null) {
+        root ! RequestAgentInfo(context.sender())
+      }
       stay
   }
 

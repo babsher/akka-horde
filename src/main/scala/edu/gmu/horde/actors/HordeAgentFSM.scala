@@ -3,9 +3,10 @@ package edu.gmu.horde.actors
 import akka.actor.{ ActorRef, FSM, Actor }
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
+import edu.gmu.horde.{AgentDetail, RequestAgentDetail, Train, SetAttributeStore}
 import edu.gmu.horde.storage._
 import AttributeStore.NewAttributeStore
-import edu.gmu.horde._
+import edu.gmu.horde.zerg._
 import weka.classifiers.Classifier
 import weka.core.{Instance, Attribute}
 import scala.concurrent.Await
@@ -69,6 +70,9 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
         }
       case Event(SetAttributeStore(storeActor: ActorRef), _) =>
         attributeStore = storeActor
+        stay
+      case Event(RequestAgentDetail, _) =>
+        sender ! AgentDetail(self, getType, features(fromState))
         stay
       case Event(nextState: S, _) =>
         toStates.find((to: To) => to.state == nextState) match {
@@ -140,6 +144,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
   def getAction(state: S): Action
   def attributes(state: S): Seq[Attribute]
   def features(state: S): Map[String, AttributeValue]
+  def getType: String
 }
 
 case class Action(onEnter: () => Unit, onTick: () => Unit, onExit: () => Unit);

@@ -10,8 +10,8 @@ import weka.core.{Attribute, Instances}
 import scala.collection.immutable.List
 
 sealed trait AttributeValue
-case class StringValue(v: String) extends AttributeValue
-case class DoubleValue(v: Double) extends AttributeValue
+case class StringValue(name: String, v: String) extends AttributeValue
+case class DoubleValue(name: String, v: Double) extends AttributeValue
 
 case class Write(i: Map[String, AttributeValue])
 case object Close

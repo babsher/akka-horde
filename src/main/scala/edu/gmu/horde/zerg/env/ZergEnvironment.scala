@@ -2,9 +2,10 @@ package edu.gmu.horde.zerg.env
 
 import java.util.concurrent.TimeUnit
 import akka.actor._
+import edu.gmu.horde.{NewUnit, OnFrame}
 import edu.gmu.horde.actors.Environment
 import edu.gmu.horde.env.BWInterface
-import edu.gmu.horde.zerg.{NewUnit, OnFrame, UnitCmd}
+import edu.gmu.horde.zerg.NewUnit
 import jnibwapi.types.UnitCommandType.UnitCommandTypes
 import jnibwapi.types.UnitType
 import jnibwapi.{Unit => BUnit, JNIBWAPI, Region, UnitCommand, Position}
