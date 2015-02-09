@@ -2,7 +2,6 @@ package edu.gmu.horde.zerg.agents
 
 import akka.actor.{Props, ActorRef, Actor}
 import edu.gmu.horde.NewUnit
-import edu.gmu.horde.actors.SetEnvironment
 
 object MilitaryAgent {
   def props(env :ActorRef) = Props(new MilitaryAgent(env))

@@ -3,10 +3,11 @@ package edu.gmu.horde.actors
 import akka.actor.{ ActorRef, FSM, Actor }
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde.{AgentDetail, RequestAgentDetail, Train, SetAttributeStore}
+import edu.gmu.horde._
 import edu.gmu.horde.storage._
 import AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg._
+import edu.gmu.horde.zerg.env
 import weka.classifiers.Classifier
 import weka.core.{Instance, Attribute}
 import scala.concurrent.Await
@@ -21,7 +22,7 @@ import scala.concurrent.duration._
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO {
+trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
   this: FSM[S, D] =>
   var attributeStore: ActorRef = _
   var store: Map[S, ActorRef] = Map()

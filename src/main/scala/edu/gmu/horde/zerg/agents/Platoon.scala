@@ -87,4 +87,6 @@ class Platoon(val envRef: ActorRef) extends Actor with LoggingFSM[Platoon.States
   override def features(state: States): Map[String, AttributeValue] = ???
 
   override def attributes(state: States): Seq[Attribute] = ???
+
+  override def getType: String = Platoon.getClass.getSimpleName
 }

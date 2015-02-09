@@ -1,7 +1,7 @@
 package edu.gmu.horde.actors
 
 import akka.actor.{Actor, ActorRef}
-import edu.gmu.horde.NewUnit
+import edu.gmu.horde._
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
 class Root extends Actor {

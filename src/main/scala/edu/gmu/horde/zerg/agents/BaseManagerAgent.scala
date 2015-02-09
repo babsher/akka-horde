@@ -1,12 +1,7 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{ActorLogging, Props, ActorRef, Actor}
-import edu.gmu.horde.NewUnit
-import edu.gmu.horde.actors.{NewAgent, Train, SetEnvironment}
-import edu.gmu.horde.zerg.agents.Drone.Harvest
-import edu.gmu.horde.zerg.env.ZergEnvironment
-import jnibwapi.types.UnitType
-import jnibwapi.Position
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import edu.gmu.horde.{Train, SetEnvironment, NewAgent, NewUnit}
 
 object BaseManagerAgent {
   def props(env: ActorRef) = Props(new BaseManagerAgent(env))

@@ -3,14 +3,14 @@ package edu.gmu.horde
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.http.Http
-import akka.stream.FlowMaterializer
+import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.actors.{HordeFSM, ZergHordeService}
 
 object Boot extends App with ZergHordeService {
   override implicit val system = ActorSystem()
   override implicit val executor = system.dispatcher
-  override implicit val materializer = FlowMaterializer()
+  override implicit val materializer = ActorFlowMaterializer()
 
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)

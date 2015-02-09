@@ -1,10 +1,8 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{ActorLogging, Props, ActorRef, Actor}
-import edu.gmu.horde.{NewUnit, OnFrame}
-import edu.gmu.horde.actors.{NewAgent, SetManagers, Train}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import edu.gmu.horde.zerg.env.{MorphLarva, Supply}
-import edu.gmu.horde.zerg.NewUnit
+import edu.gmu.horde._
 import jnibwapi.Position
 import jnibwapi.types.UnitType
 import jnibwapi.types.UnitType.UnitTypes

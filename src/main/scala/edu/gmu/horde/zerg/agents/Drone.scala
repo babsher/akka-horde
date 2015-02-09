@@ -5,7 +5,6 @@ import edu.gmu.horde._
 import edu.gmu.horde.actors.{HasAction, AgentState, HordeAgentFSM, Action}
 import edu.gmu.horde.features.{ UnitFeatures, SimpleFeatures }
 import edu.gmu.horde.storage.AttributeValue
-import Subscribe
 import edu.gmu.horde.zerg.env.{ AttackNearest, BuildBuilding, MoveToNearestMineral }
 import jnibwapi.{ Unit => BUnit }
 import weka.core.Attribute
@@ -140,4 +139,6 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
     case Attacking => Action(() => {attackAction()}, () => {}, () => {})
     case Build =>     Action(() => {buildAction()}, () => {}, () => {})
   }
+
+  override def getType: String = Drone.getClass.getSimpleName
 }

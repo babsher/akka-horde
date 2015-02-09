@@ -1,19 +1,16 @@
 package edu.gmu.horde.zerg.env
 
-import java.util.concurrent.TimeUnit
 import akka.actor._
-import edu.gmu.horde.{NewUnit, OnFrame}
 import edu.gmu.horde.actors.Environment
 import edu.gmu.horde.env.BWInterface
-import edu.gmu.horde.zerg.NewUnit
-import jnibwapi.types.UnitCommandType.UnitCommandTypes
+import edu.gmu.horde.{NewUnit, OnFrame, _}
 import jnibwapi.types.UnitType
-import jnibwapi.{Unit => BUnit, JNIBWAPI, Region, UnitCommand, Position}
 import jnibwapi.types.UnitType.UnitTypes
+import jnibwapi.{JNIBWAPI, Region, Unit => BUnit}
 import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
-import edu.gmu.horde.actors.Run
 
 object ZergEnvironment {
   val log = LoggerFactory.getLogger(ZergEnvironment.getClass())
@@ -51,7 +48,7 @@ case class AttackUnit(id :Int, targetId :Int) extends HordeCommand {
 }
 
 class ZergEnvironment extends Environment {
-  import ZergEnvironment._
+  import edu.gmu.horde.zerg.env.ZergEnvironment._
   implicit val dispatcher = context.system.dispatcher
   val game = new BWInterface(context.self)
 
