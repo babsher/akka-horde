@@ -3,7 +3,7 @@ package edu.gmu.horde
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.http.Http
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
+import akka.stream.ActorFlowMaterializer
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde.actors.{HordeFSM, ZergHordeService}
 
