@@ -1,18 +1,11 @@
 package edu.gmu.horde
 
-import javax.management.AttributeValueExp
-
-import akka.actor.{Props, ActorSystem, Actor}
-import akka.actor.Actor.Receive
-import akka.testkit.{TestActorRef, ImplicitSender, TestKit}
+import akka.actor.ActorSystem
+import akka.testkit.TestActorRef
 import edu.gmu.horde.actors.AgentState
 import edu.gmu.horde.storage._
-import edu.gmu.horde.zerg.agents.Drone
-import edu.gmu.horde.zerg.UnitUpdate
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import weka.core.{FastVector, Attribute, Instance}
-import scala.concurrent.duration._
-import org.slf4j.LoggerFactory
+import org.scalatest.WordSpecLike
+import weka.core.Attribute
 
 
 class AttributeStorageSpec extends WordSpecLike {

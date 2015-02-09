@@ -1,14 +1,11 @@
 package edu.gmu.horde
 
 import akka.actor._
-import akka.testkit.{ TestActors, DefaultTimeout, ImplicitSender, TestKit }
-import com.typesafe.config.ConfigFactory
+import akka.testkit.{ImplicitSender, TestKit}
 import edu.gmu.horde.actors.Environment
-import edu.gmu.horde.zerg.UnitUpdate
-import org.junit.Test
-import scala.concurrent.duration._
-
 import org.scalatest._
+
+import scala.concurrent.duration._
 
 class EnvironmentSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
   with ImplicitSender
