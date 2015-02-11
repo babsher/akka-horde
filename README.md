@@ -30,5 +30,5 @@ gulp build
 ```
 ### Build Jar
 ```bash
-sbt build
+sbt package
 ```
