@@ -8,9 +8,9 @@
 * node package manager, should come with node js
 
 ## How to build
-
+### build web site
 ```bash
-    cd to /src/main/resources/app
+    cd  src/main/resources/app
 ```
 
 ```bash
@@ -27,4 +27,8 @@
 
 ```bash
     gulp build
+```
+### build jar
+```bash
+sbt build
 ```
