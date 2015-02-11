@@ -8,27 +8,27 @@
 * node package manager, should come with node js
 
 ## How to build
-### build web site
+### Build Website
 ```bash
-    cd  src/main/resources/app
+cd  src/main/resources/app
 ```
 
 ```bash
-    sudo npm install -g yo gulp bower
+sudo npm install -g yo gulp bower
 ```
 
 ```bash
-    npm install
+npm install
 ```
 
 ```bash
-    bower install
+bower install
 ```
 
 ```bash
-    gulp build
+gulp build
 ```
-### build jar
+### Build Jar
 ```bash
 sbt build
 ```
