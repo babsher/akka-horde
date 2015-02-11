@@ -27,14 +27,13 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-core-experimental"       % akkaStreamV,
   "com.typesafe.akka" %% "akka-http-experimental"            % akkaStreamV,
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaStreamV,
-  "com.typesafe.akka" %% "akka-http-testkit-experimental"    % akkaStreamV,
+  "com.typesafe.akka" %% "akka-http-testkit-experimental"    % akkaStreamV % "test",
   "com.typesafe.akka" %% "akka-actor"   % akkaV,
   "com.typesafe.akka" %% "akka-kernel"  % akkaV,
   "com.typesafe.akka" %% "akka-slf4j"   % akkaV,
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.6.11",
   "com.google.guava" % "guava" % "18.0",
-  "junit" % "junit" % "4.8.1" % "test",
-  "io.spray" %% "spray-testkit" % sprayV % "test",
+  "junit" % "junit" % "4.12" % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )

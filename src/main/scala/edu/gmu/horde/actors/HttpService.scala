@@ -2,10 +2,13 @@ package edu.gmu.horde.actors
 
 import akka.actor.{ActorSystem, _}
 import akka.event.LoggingAdapter
+import akka.http.Http
 import akka.http.marshallers.sprayjson.SprayJsonSupport
+import akka.http.model.{HttpResponse, HttpRequest}
 import akka.http.server.Directives._
 import akka.pattern._
 import akka.stream.FlowMaterializer
+import akka.stream.scaladsl.{Sink, Source}
 import akka.util._
 import com.google.common.io.BaseEncoding
 import com.typesafe.config.Config
@@ -13,7 +16,7 @@ import edu.gmu.horde._
 import edu.gmu.horde.storage.{AttributeValue, DoubleValue, StringValue}
 import spray.json._
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{Future, ExecutionContextExecutor}
 import scala.concurrent.duration._
 
 trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
@@ -43,6 +46,11 @@ trait ZergHordeService extends Protocols {
   implicit val timeout: Timeout = Timeout(15 seconds)
   val logger: LoggingAdapter
   val horde: ActorRef
+
+  lazy val zergConnectionFlow = Http().outgoingConnection(config.getString("services.telizeHost"), config.getInt("services.telizePort")).flow
+
+  def zergRequest(request: HttpRequest): Future[HttpResponse] = Source.single(request).via(zergConnectionFlow).runWith(Sink.head)
+  
   val routes = {
     logRequestResult("zerg-microservice") {
       path("") {
