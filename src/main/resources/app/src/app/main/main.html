@@ -1,16 +1,9 @@
-<div layout="vertical" layout-fill>
+<div layout="column" layout-fill>
 
   <header ng-include="'components/navbar/navbar.html'"></header>
 
   <md-content>
-    <section class="jumbotron">
-      <h1>'Allo, 'Allo!</h1>
-      <p class="lead">
-        <img src="assets/images/yeoman.png" alt="I'm Yeoman"><br>
-        Always a pleasure scaffolding your apps.
-      </p>
-      <p><a class="btn" ng-href="#">Splendid!</a></p>
-    </section>
+    <div ng-include="'components/sidenav/sidenav.html'"></div>
 
     <div class="techs" layout-align="center">
       <md-card ng-repeat="awesomeThing in awesomeThings | orderBy:'rank'">
@@ -25,11 +18,5 @@
       </md-card>
     </div>
   </md-content>
-
-  <footer>
-    <md-toolbar layout="row" layout-align="center center">
-      <p>With ♥ from <a href="https://twitter.com/Swiip">@Swiip</a></p>
-    </md-toolbar>
-  </footer>
 
 </div>

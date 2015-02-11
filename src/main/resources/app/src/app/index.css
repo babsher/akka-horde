@@ -1,7 +1,7 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto+Slab:400,700|Roboto:400,700,700italic,400italic);
 
 html {
-  font-family: 'Roboto Slab', serif;
+  font-family: 'RobotoDraft', Roboto, 'Helvetica Neue', sans-serif;
 }
 
 [layout=row] {
