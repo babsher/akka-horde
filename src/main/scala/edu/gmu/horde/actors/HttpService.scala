@@ -23,6 +23,7 @@ trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val agentInfoFormat = jsonFormat2(AgentInfo.apply)
   implicit val requestAgentsFormat = jsonFormat1(AgentSummary.apply)
   implicit val trainFormat = jsonFormat1(Train.apply)
+  implicit val stateFormat = jsonFormat1(State.apply)
   implicit object attributeValueFormat extends RootJsonFormat[AttributeValue] {
     override def read(json: JsValue) = json match {
       case JsNumber(num) =>
@@ -69,9 +70,21 @@ trait ZergHordeService extends Protocols {
             }
           } ~
           pathPrefix("train") {
-            (put & path(Segment)) { id =>
+            (post & path(Segment)) { id =>
               entity(as[Train]) { msg =>
                 complete((getActorPath(id) ? msg).mapTo[Train])
+              }
+            }
+          }
+        } ~
+        pathPrefix("system") {
+          get {
+            complete((horde ? RequestState).mapTo[State])
+          }
+          post {
+            (post & path(Segment)) { id =>
+              entity(as[State]) { msg =>
+                complete((getActorPath(id) ? msg).mapTo[State])
               }
             }
           }

@@ -54,14 +54,14 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   }
 
   when(Running) {
-    case Event(Stop, _) =>
+    case Event(Run(_, false), _) =>
       goto(Stopped)
     case Event(Run(conn, train), _) =>
       doRun(conn, train)
   }
 
   when(Training) {
-    case Event(Stop, _) =>
+    case Event(Run(_, false), _) =>
       goto(Stopped)
     case Event(Run(conn, train), _) =>
       doRun(conn, train)
@@ -85,8 +85,8 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
 
   onTransition {
     case _ -> Stopped =>
-      root ! Stop
-      env ! Stop
+      root ! Run(false, false)
+      env ! Run(false, false)
   }
 
   initialize()
