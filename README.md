@@ -9,22 +9,22 @@
 
 ## How to build
 
-1. ```bash
+```bash
     cd to /src/main/resources/app
 ```
 
-1. ```bash
+```bash
     sudo npm install -g yo gulp bower
 ```
 
-1. ```bash
+```bash
     npm install
 ```
 
-1. ```bash
+```bash
     bower install
 ```
 
-1. ```bash
+```bash
     gulp build
 ```
