@@ -8,6 +8,11 @@ html {
   flex-direction: row;
 }
 
+.ng-scope {
+  height: 100%;
+
+}
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
