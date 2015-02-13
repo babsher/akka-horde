@@ -7,6 +7,8 @@
 * node js (http://nodejs.org/)
 * node package manager, should come with node js
 
+![alt text][logo]
+[logo]: https://travis-ci.org/babsher/akka-horde.svg "travis ci build status"
 ## How to build
 ### Build Website
 ```bash
