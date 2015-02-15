@@ -35,7 +35,7 @@ case class Run(connect: Boolean)
 case class Train(train: Boolean)
 
 case object RequestAgentDetail
-case class AgentDetail(agent: String, agentType: String, features: Map[String, AttributeValue])
+case class AgentDetail(agent: String, agentType: String, currentState: State, states: Seq[State], features: Map[String, AttributeValue])
 case class RequestAgentInfo(sender: ActorRef)
 
 case class AgentInfo(name: String, agentType: String)

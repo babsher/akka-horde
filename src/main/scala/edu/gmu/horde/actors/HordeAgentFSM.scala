@@ -4,6 +4,7 @@ import akka.actor.{ ActorRef, FSM, Actor }
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import edu.gmu.horde._
+import edu.gmu.horde.{State => StateMsg}
 import edu.gmu.horde.storage._
 import AttributeStore.NewAttributeStore
 import edu.gmu.horde.zerg._
@@ -73,7 +74,8 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
         attributeStore = storeActor
         stay
       case Event(RequestAgentDetail, _) =>
-        sender ! AgentDetail(self, getType, features(fromState))
+        val stateStrings = states.map(s => StateMsg(s.name))
+        sender ! AgentDetail(self, getType, currentState, stateStrings, features(fromState))
         stay
       case Event(nextState: S, _) =>
         toStates.find((to: To) => to.state == nextState) match {
@@ -90,6 +92,9 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
       case a @ _ =>
         log.debug("Unknown state transition {}", a)
         stay
+      case Event(RequestState, _) =>
+        respondToRequestState(sender())
+        stay
     }
   }
 
@@ -97,6 +102,14 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
     case fromState -> toState =>
       getAction(fromState).onExit()
       getAction(toState).onEnter()
+  }
+  
+  def currentState: StateMsg = {
+    StateMsg(stateName.toString)
+  }
+
+  def respondToRequestState(sender: ActorRef): Unit = {
+    sender ! currentState
   }
 
   def getNextState(currState: S, toStates: Seq[To]): S = {
@@ -142,6 +155,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
 
   def agentName = getClass.getCanonicalName
 
+  def states: Seq[S]
   def getAction(state: S): Action
   def attributes(state: S): Seq[Attribute]
   def features(state: S): Map[String, AttributeValue]

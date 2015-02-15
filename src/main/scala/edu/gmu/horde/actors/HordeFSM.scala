@@ -49,6 +49,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
         root ! RequestAgentInfo(context.sender())
       }
       stay
+    case Event(RequestState, _) =>
+      respondToRequestState(sender())
+      stay
   }
 
   when(Running) {
@@ -56,6 +59,13 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       goto(Stopped)
     case Event(Run(conn), _) =>
       doRun(conn)
+    case Event(RequestState, _) =>
+      respondToRequestState(sender())
+      stay
+  }
+  
+  def respondToRequestState(sender: ActorRef): Unit = {
+    sender ! State(this.stateName.toString)
   }
 
   def doRun(connect :Boolean) = {
