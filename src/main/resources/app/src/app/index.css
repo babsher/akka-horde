@@ -10,3 +10,7 @@ html {
   height: 100%;
 }
 
+.md-sidenav-left .md-button {
+  display: block;
+  margin: 1em;
+  line-height: 30px; }

@@ -55,7 +55,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   }
 
   when(Running) {
-    case Event(Run(_), _) =>
+    case Event(Stop, _) =>
       goto(Stopped)
     case Event(Run(conn), _) =>
       doRun(conn)

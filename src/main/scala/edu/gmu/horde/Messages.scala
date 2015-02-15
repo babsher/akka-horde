@@ -31,6 +31,7 @@ case class SetEnvironment(env: ActorRef)
 case class SetRoot(env: ActorRef)
 case class SetAttributeStore(store: ActorRef)
 case class Run(connect: Boolean)
+case object Stop
 
 case class Train(train: Boolean)
 

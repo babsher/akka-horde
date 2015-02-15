@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('app', ['ngAnimate', 'ui.router', 'ngMaterial'])
-  .config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider) {
+angular.module('app', ['ngMaterial', 'ngAnimate', 'ui.router'])
+  .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
       .state('home', {
         url: '/',

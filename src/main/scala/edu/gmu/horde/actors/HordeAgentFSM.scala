@@ -1,16 +1,14 @@
 package edu.gmu.horde.actors
 
-import akka.actor.{ ActorRef, FSM, Actor }
+import akka.actor.{ActorRef, FSM}
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde._
-import edu.gmu.horde.{State => StateMsg}
+import edu.gmu.horde.storage.AttributeStore.NewAttributeStore
 import edu.gmu.horde.storage._
-import AttributeStore.NewAttributeStore
-import edu.gmu.horde.zerg._
-import edu.gmu.horde.zerg.env
+import edu.gmu.horde.{State => StateMsg, _}
 import weka.classifiers.Classifier
-import weka.core.{Instance, Attribute}
+import weka.core.Attribute
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -39,11 +37,11 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
 
   def loadModels(dir: String) = {
     (for (state <- this.states; c: Classifier = weka.core.SerializationHelper.read(dir + state.name).asInstanceOf[Classifier])
-      yield (state -> c)) toMap
+    yield (state -> c)) toMap
   }
-  def states: Seq[S]
 
   case class To(state: S)
+
   // tells agent to do compute its next action
   case class ActionTimeout()
 
@@ -52,6 +50,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
       case Event(SetEnvironment(ref), _) =>
         env = ref
         stay
+
       case Event(Train(train), _) =>
         training = train
         if (training) {
@@ -61,6 +60,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
         }
         context.children.map(child => child ! Train(training))
         stay
+
       case Event(ActionTimeout, _) =>
         val nextState = getNextState(fromState, toStates)
         if (nextState == fromState) {
@@ -70,30 +70,40 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
           // exit/enter actions handled by #onTransition
           goto(nextState)
         }
+
       case Event(SetAttributeStore(storeActor: ActorRef), _) =>
         attributeStore = storeActor
         stay
+
       case Event(RequestAgentDetail, _) =>
         val stateStrings = states.map(s => StateMsg(s.name))
         sender ! AgentDetail(self, getType, currentState, stateStrings, features(fromState))
         stay
-      case Event(nextState: S, _) =>
-        toStates.find((to: To) => to.state == nextState) match {
-          case Some(toState) =>
-            if (training) {
-              store(fromState, toState.state)
+
+      case Event(stateMsg: StateMsg, _) =>
+        states.find(_.name == stateMsg.state) match {
+          case Some(nextState) =>
+            toStates.find(_.state == nextState) match {
+              case Some(toState) =>
+                if (training) {
+                  store(fromState, toState.state)
+                }
+                goto(nextState)
+              case None =>
+                log.warning("Not a valid state transition to {} from {}", nextState, fromState.name)
+                stay
             }
-            goto(nextState)
           case None =>
-            log.warning("Unknown state " + nextState)
+            log.warning("Not a valid state {} ", stateMsg)
             stay
         }
 
-      case a @ _ =>
-        log.debug("Unknown state transition {}", a)
-        stay
       case Event(RequestState, _) =>
         respondToRequestState(sender())
+        stay
+
+      case a@_ =>
+        log.debug("Unknown message {}", a)
         stay
     }
   }
@@ -103,9 +113,9 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
       getAction(fromState).onExit()
       getAction(toState).onEnter()
   }
-  
+
   def currentState: StateMsg = {
-    StateMsg(stateName.toString)
+    StateMsg(stateName.name)
   }
 
   def respondToRequestState(sender: ActorRef): Unit = {
@@ -156,9 +166,13 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
   def agentName = getClass.getCanonicalName
 
   def states: Seq[S]
+
   def getAction(state: S): Action
+
   def attributes(state: S): Seq[Attribute]
+
   def features(state: S): Map[String, AttributeValue]
+
   def getType: String
 }
 
@@ -166,6 +180,7 @@ case class Action(onEnter: () => Unit, onTick: () => Unit, onExit: () => Unit);
 
 trait HasAction[T] {
   def getAction(t: T): Action
+
   def NullAction = Action(() => {}, () => {}, () => {})
 }
 

@@ -38,7 +38,7 @@ trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
       case StringValue(str) => JsString(str)
     }
   }
-  implicit val agentDetailFormat = jsonFormat3(AgentDetail.apply)
+  implicit val agentDetailFormat = jsonFormat5(AgentDetail.apply)
 }
 
 trait ZergHordeService extends Protocols {

@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module('app')
-  .controller('SidenavCtrl', function($scope, $mdSidenav, $log) {
-    $scope.toggleLeft = function() {
-      $mdSidenav('left').toggle()
-        .then(function(){
-          $log.debug("toggle left is done");
-        });
-    };
-  })
-  .controller('LeftCtrl', function($scope, $mdSidenav, $log) {
-    $scope.close = function() {
-      $mdSidenav('left').close()
-        .then(function(){
-          $log.debug("close LEFT is done");
-        });
-    };
+  .controller('LeftCtrl', function($scope, $http, $log) {
+    $scope.start = false;
+    $http.get('/api/system').
+      success(function(data, status, headers, config){
+        if("Running" === data) {
+          $scope.start = true;
+        } else if ("Stopped" === data) {
+          $scope.start = false;
+        }
+      });
+
+    $http.get('/api/agents').
+      success(function(data, status, headers, config){
+        $scope.agents = data;
+      });
   });
