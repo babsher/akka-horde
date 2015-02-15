@@ -14,8 +14,8 @@ class Root extends Actor {
   var env :ActorRef = null
 
   override def receive: Receive = {
-    case Run(connect, train) =>
-      createManagers(connect, train)
+    case Run(connect) =>
+      createManagers(connect)
     case SetEnvironment(e) =>
       env = e
     case msg @ NewUnit(id, u) =>
@@ -31,12 +31,11 @@ class Root extends Actor {
       miliatry ! msg
   }
 
-  def createManagers(connect :Boolean, train :Boolean) :Unit = {
+  def createManagers(connect :Boolean) :Unit = {
     miliatry = context.actorOf(MilitaryAgent.props(env))
     production = context.actorOf(ProductionAgent.props(env))
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set
-    context.children.map(child => child ! Train(train))
   }
 }

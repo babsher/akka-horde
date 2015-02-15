@@ -54,7 +54,7 @@ class ZergEnvironment extends Environment {
 
   override def receive =
     super.receive orElse {
-      case Run(connect, train) =>
+      case Run(connect) =>
         if(connect) {
           log.debug("Connecting to game")
           game.start()

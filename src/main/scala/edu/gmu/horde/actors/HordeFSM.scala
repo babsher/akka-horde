@@ -13,9 +13,7 @@ case object HordeFSM {
 }
 
 sealed trait HordeFSMState
-case object Idle extends HordeFSMState
 case object Running extends HordeFSMState
-case object Training extends HordeFSMState
 case object Stopping extends HordeFSMState
 case object Stopped extends HordeFSMState
 
@@ -31,11 +29,11 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   var root :ActorRef = context.actorOf(Props[Root], "root")
   var store :ActorRef = null
 
-  startWith(Idle, Uninitialized)
+  startWith(Stopped, Uninitialized)
 
-  when(Idle) {
+  when(Stopped) {
     case Event(StateTimeout, _) =>
-      goto(Idle)
+      goto(Stopped)
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Setting up Scenario {}", name)
       root = context.actorOf(Props[Root], "root")
@@ -44,8 +42,8 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay
-    case Event(Run(conn, train), _) =>
-      doRun(conn, train)
+    case Event(Run(conn), _) =>
+      doRun(conn)
     case Event(RequestAgentInfo(null), _) =>
       if(root != null) {
         root ! RequestAgentInfo(context.sender())
@@ -54,30 +52,17 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
   }
 
   when(Running) {
-    case Event(Run(_, false), _) =>
+    case Event(Run(_), _) =>
       goto(Stopped)
-    case Event(Run(conn, train), _) =>
-      doRun(conn, train)
+    case Event(Run(conn), _) =>
+      doRun(conn)
   }
 
-  when(Training) {
-    case Event(Run(_, false), _) =>
-      goto(Stopped)
-    case Event(Run(conn, train), _) =>
-      doRun(conn, train)
-  }
-
-  when(Stopped) (FSM.NullFunction)
-
-  def doRun(connect :Boolean, train :Boolean) = {
+  def doRun(connect :Boolean) = {
     if(root != null) {
-      root ! Run(connect, train)
-      env ! Run(connect, train)
-      if(train) {
-        goto(Training) using new EnvironmentData(env)
-      } else {
-        goto(Running) using new EnvironmentData(env)
-      }
+      root ! Run(connect)
+      env ! Run(connect)
+      goto(Running) using new EnvironmentData(env)
     } else {
       stay
     }
@@ -85,8 +70,8 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
 
   onTransition {
     case _ -> Stopped =>
-      root ! Run(false, false)
-      env ! Run(false, false)
+      root ! Run(false)
+      env ! Run(false)
   }
 
   initialize()
