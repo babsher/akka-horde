@@ -81,22 +81,23 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
         stay
 
       case Event(stateMsg: StateMsg, _) =>
-        states.find(_.name == stateMsg.state) match {
-          case Some(nextState) =>
-            toStates.find(_.state == nextState) match {
-              case Some(toState) =>
-                if (training) {
+        if(training) {
+          states.find(_.name == stateMsg.state) match {
+            case Some(nextState) =>
+              toStates.find(_.state == nextState) match {
+                case Some(toState) =>
                   store(fromState, toState.state)
-                }
-                goto(nextState)
-              case None =>
-                log.warning("Not a valid state transition to {} from {}", nextState, fromState.name)
-                stay
-            }
-          case None =>
-            log.warning("Not a valid state {} ", stateMsg)
-            stay
+                  goto(nextState)
+                case None =>
+                  log.warning("Not a valid state transition to {} from {}", nextState, fromState.name)
+              }
+            case None =>
+              log.warning("Not a valid state {} ", stateMsg)
+          }
+        } else {
+          log.warning("Cannot transition to state '{}' if not training", stateMsg)
         }
+        stay
 
       case Event(RequestState, _) =>
         respondToRequestState(sender())
