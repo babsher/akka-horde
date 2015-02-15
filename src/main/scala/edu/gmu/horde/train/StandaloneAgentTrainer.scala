@@ -248,7 +248,7 @@ object StandaloneAgentTrainer extends App with Trainer {
           Some(drone.getTargetPosition),
           atTarget)
         if (lastCommands contains drone.getID) {
-          if (lastCommands.entryExists(drone.getID, _ != cmd.order.id)) {
+          if (lastCommands.entryExists(drone.getID, _.order != cmd.order)) {
             writeCommand(bwapi.getFrameCount, drone, cmd)
           } else {
             log.trace("Order already exists " + cmd + " in " + lastCommands(drone.getID))
