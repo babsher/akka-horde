@@ -54,5 +54,5 @@ angular.module('app')
     ];
     angular.forEach($scope.awesomeThings, function(awesomeThing) {
       awesomeThing.rank = Math.random();
-    });
+    })
   });

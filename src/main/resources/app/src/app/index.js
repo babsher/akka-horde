@@ -10,9 +10,5 @@ angular.module('app', ['ngAnimate', 'ui.router', 'ngMaterial'])
       });
 
     $urlRouterProvider.otherwise('/');
-
-    $mdThemingProvider.theme('default')
-        .primaryPalette('pink')
-        .accentPalette('orange');
   })
 ;
