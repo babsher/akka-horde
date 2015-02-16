@@ -8,6 +8,7 @@ import akka.http.model._
 import akka.http.testkit.ScalatestRouteTest
 import akka.stream.scaladsl.Flow
 import akka.testkit.{TestActorRef, TestProbe}
+import edu.gmu.horde.http.ZergHordeService
 import edu.gmu.horde.{RequestAgentInfo, AgentInfo, AgentsSummary}
 import org.scalatest.{FlatSpec, Matchers}
 import scala.concurrent.duration._

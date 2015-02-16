@@ -5,7 +5,8 @@ import akka.event.Logging
 import akka.http.Http
 import akka.stream.ActorFlowMaterializer
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde.actors.{HordeFSM, ZergHordeService}
+import edu.gmu.horde.actors.HordeFSM
+import edu.gmu.horde.http.ZergHordeService
 
 object Boot extends App with ZergHordeService {
   override implicit val system = ActorSystem()

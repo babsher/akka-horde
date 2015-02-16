@@ -1,47 +1,19 @@
-package edu.gmu.horde.actors
+package edu.gmu.horde.http
 
-import akka.actor.{ActorSystem, _}
+import akka.actor.{ActorRef, ActorSelection, ActorSystem}
 import akka.event.LoggingAdapter
 import akka.http.Http
-import akka.http.marshallers.sprayjson.SprayJsonSupport
-import akka.http.model.{HttpResponse, HttpRequest}
+import akka.http.model.{HttpRequest, HttpResponse}
 import akka.http.server.Directives._
-import akka.pattern._
+import akka.http.server.PathMatchers.Segment
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl.{Sink, Source}
-import akka.util._
+import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.typesafe.config.Config
 import edu.gmu.horde._
-import edu.gmu.horde.storage.{AttributeValue, DoubleValue, StringValue}
-import spray.json._
 
-import scala.concurrent.{Future, ExecutionContextExecutor}
-import scala.concurrent.duration._
-
-trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
-  implicit val agentInfoFormat = jsonFormat2(AgentInfo.apply)
-  implicit val requestAgentsFormat = jsonFormat1(AgentsSummary.apply)
-  implicit val trainFormat = jsonFormat1(Train.apply)
-  implicit val stateFormat = jsonFormat1(State.apply)
-  implicit object attributeValueFormat extends RootJsonFormat[AttributeValue] {
-    override def read(json: JsValue) = json match {
-      case JsNumber(num) =>
-        DoubleValue(num.toDouble)
-      case JsString(str) =>
-        StringValue(str)
-      case _ => throw new DeserializationException("Attribute value expected")
-    }
-
-    override def write(obj: AttributeValue) = obj match {
-      case DoubleValue(num) => JsNumber(num)
-      case StringValue(str) => JsString(str)
-    }
-  }
-  implicit val agentDetailFormat = jsonFormat5(AgentDetail.apply)
-  implicit val runFormat = jsonFormat1(Run.apply)
-  implicit val hordeStateFormat = jsonFormat3(HordeState.apply)
-}
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait ZergHordeService extends Protocols {
   implicit val system: ActorSystem
@@ -53,7 +25,7 @@ trait ZergHordeService extends Protocols {
   lazy val zergConnectionFlow = Http().outgoingConnection(config.getString("services.telizeHost"), config.getInt("services.telizePort")).flow
 
   def zergRequest(request: HttpRequest): Future[HttpResponse] = Source.single(request).via(zergConnectionFlow).runWith(Sink.head)
-  
+
   val routes = {
     logRequestResult("zerg-microservice") {
       path("") {
