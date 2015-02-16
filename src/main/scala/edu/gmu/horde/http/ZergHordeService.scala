@@ -12,8 +12,10 @@ import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.typesafe.config.Config
 import edu.gmu.horde._
+import akka.pattern.ask
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.duration._
 
 trait ZergHordeService extends Protocols {
   implicit val system: ActorSystem

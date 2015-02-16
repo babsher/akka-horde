@@ -20,6 +20,6 @@ object Boot extends App with ZergHordeService {
   Http().bind(interface = config.getString("http.interface"), port = config.getInt("http.port")).startHandlingWith(routes)
 
   def createHorde(): ActorRef = {
-    system.actorOf(Props[HordeFSM])
+    system.actorOf(Props[HordeFSM], "horde")
   }
 }

@@ -4,6 +4,7 @@ import akka.actor._
 import edu.gmu.horde._
 import edu.gmu.horde.storage.{AttributeValue, AttributeStore}
 import edu.gmu.horde.zerg._
+import edu.gmu.horde.zerg.agents.Drone.Idle
 import edu.gmu.horde.zerg.env
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.slf4j.LoggerFactory
@@ -75,6 +76,11 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
         context.children.map(_ ! PoisonPill)
         goto(Stopping)
       }
+  }
+  
+  when(Stopping) {
+    case Event(Stopped, _) =>
+      goto(Stopped)
   }
   
   def respondToRequestState(sender: ActorRef): Unit = {
