@@ -25,7 +25,7 @@ class Root extends Actor {
       context.parent ! msg
     case RequestAgentInfo(sender: ActorRef) =>
       val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(id, typeName)
-      sender ! AgentSummary(a toSeq)
+      sender ! AgentsSummary(a toSeq)
     case msg @ _ =>
       production ! msg
       miliatry ! msg

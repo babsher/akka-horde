@@ -22,7 +22,7 @@ case object Uninitialized extends HordeFSMData
 case class EnvironmentData(env: ActorRef) extends HordeFSMData
 case object Halt extends HordeFSMData
 
-class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
+class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with Messages {
   import edu.gmu.horde.actors.HordeFSM.logger
 
   var env :ActorRef = null
@@ -52,6 +52,12 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
     case Event(RequestState, _) =>
       respondToRequestState(sender())
       stay
+    case Event(State(stateName), _) =>
+      if(stateName == Running.toString) {
+          goto(Running)
+      } else {
+        stay
+      }
   }
 
   when(Running) {
@@ -62,10 +68,17 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] {
     case Event(RequestState, _) =>
       respondToRequestState(sender())
       stay
+    case Event(State(stateName), _) =>
+      if(stateName == Running.toString) {
+        stay
+      } else {
+        context.children.map(_ ! PoisonPill)
+        goto(Stopping)
+      }
   }
   
   def respondToRequestState(sender: ActorRef): Unit = {
-    sender ! State(this.stateName.toString)
+    sender ! HordeState(self, State(this.stateName.toString), root)
   }
 
   def doRun(connect :Boolean) = {

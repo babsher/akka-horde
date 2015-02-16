@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 
 trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val agentInfoFormat = jsonFormat2(AgentInfo.apply)
-  implicit val requestAgentsFormat = jsonFormat1(AgentSummary.apply)
+  implicit val requestAgentsFormat = jsonFormat1(AgentsSummary.apply)
   implicit val trainFormat = jsonFormat1(Train.apply)
   implicit val stateFormat = jsonFormat1(State.apply)
   implicit object attributeValueFormat extends RootJsonFormat[AttributeValue] {
@@ -39,6 +39,8 @@ trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
     }
   }
   implicit val agentDetailFormat = jsonFormat5(AgentDetail.apply)
+  implicit val runFormat = jsonFormat1(Run.apply)
+  implicit val hordeStateFormat = jsonFormat3(HordeState.apply)
 }
 
 trait ZergHordeService extends Protocols {
@@ -62,7 +64,7 @@ trait ZergHordeService extends Protocols {
       pathPrefix("api") {
         pathPrefix("agents") {
           get {
-            complete((horde ? RequestAgentInfo(null)).mapTo[AgentSummary])
+            complete((horde ? RequestAgentInfo(null)).mapTo[AgentsSummary])
           } ~
           pathPrefix("agent") {
             (get & path(Segment)) { id =>
@@ -79,10 +81,19 @@ trait ZergHordeService extends Protocols {
         } ~
         pathPrefix("system") {
           get {
-            complete((horde ? RequestState).mapTo[State])
-          }
+            complete((horde ? RequestState).mapTo[HordeState])
+          } ~
+          pathPrefix("run") {
+            (put & entity(as[Run])) { msg =>
+              complete((horde ? msg).mapTo[State])
+            }
+          } ~
+          (pathPrefix("stop") & put) {
+            complete((horde ? Stop).mapTo[State])
+          } ~
           post {
             (post & path(Segment)) { id =>
+              System.out.print("Sending message to agent: " + id)
               entity(as[State]) { msg =>
                 complete((getActorPath(id) ? msg).mapTo[State])
               }

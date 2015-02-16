@@ -8,7 +8,7 @@ import akka.http.model._
 import akka.http.testkit.ScalatestRouteTest
 import akka.stream.scaladsl.Flow
 import akka.testkit.{TestActorRef, TestProbe}
-import edu.gmu.horde.{RequestAgentInfo, AgentInfo, AgentSummary}
+import edu.gmu.horde.{RequestAgentInfo, AgentInfo, AgentsSummary}
 import org.scalatest.{FlatSpec, Matchers}
 import scala.concurrent.duration._
 
@@ -21,7 +21,7 @@ class ZergHordeServiceSpec extends FlatSpec with Matchers with ScalatestRouteTes
   override val logger = NoLogging
 
   val agentInfo = AgentInfo("test", "") :: Nil
-  val agentSummary = AgentSummary(agentInfo)
+  val agentSummary = AgentsSummary(agentInfo)
   override val horde: ActorRef = TestActorRef(new Actor {
     def receive = {
       case RequestAgentInfo(null) => sender() ! agentSummary
@@ -54,7 +54,7 @@ class ZergHordeServiceSpec extends FlatSpec with Matchers with ScalatestRouteTes
     Get(s"/api/agents") ~> routes ~> check {
       status shouldBe OK
       contentType shouldBe `application/json`
-      responseAs[AgentSummary] shouldBe agentSummary
+      responseAs[AgentsSummary] shouldBe agentSummary
     }
   }
 }

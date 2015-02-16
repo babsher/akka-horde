@@ -40,7 +40,8 @@ case class AgentDetail(agent: String, agentType: String, currentState: State, st
 case class RequestAgentInfo(sender: ActorRef)
 
 case class AgentInfo(name: String, agentType: String)
-case class AgentSummary(agents: Seq[AgentInfo])
+case class AgentsSummary(agents: Seq[AgentInfo])
 
 case object RequestState
 case class State(state: String)
+case class HordeState(horde: String, state: State, root: String)
