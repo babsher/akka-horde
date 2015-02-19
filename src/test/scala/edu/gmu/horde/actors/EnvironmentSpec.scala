@@ -1,8 +1,8 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
 import akka.actor._
 import akka.testkit.{ImplicitSender, TestKit}
-import edu.gmu.horde.actors.Environment
+import edu.gmu.horde.{Publish, Subscribe, UnitUpdate}
 import org.scalatest._
 
 import scala.concurrent.duration._

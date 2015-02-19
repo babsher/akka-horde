@@ -1,12 +1,11 @@
-package edu.gmu.horde
+package edu.gmu.horde.actors
 
+import akka.actor.{ActorSystem, Props}
+import akka.testkit._
 import com.typesafe.config.ConfigFactory
-import edu.gmu.horde.actors._
+import edu.gmu.horde.Scenario
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.junit._
-import akka.testkit._
-import akka.actor.{Props, FSM, ActorSystem}
-import scala.concurrent.duration._
 
 class HordeFSMTest {
 

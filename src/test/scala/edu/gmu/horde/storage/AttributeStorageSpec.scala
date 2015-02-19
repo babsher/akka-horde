@@ -1,9 +1,8 @@
-package edu.gmu.horde
+package edu.gmu.horde.storage
 
 import akka.actor.ActorSystem
 import akka.testkit.TestActorRef
 import edu.gmu.horde.actors.AgentState
-import edu.gmu.horde.storage._
 import org.scalatest.WordSpecLike
 import weka.core.Attribute
 
