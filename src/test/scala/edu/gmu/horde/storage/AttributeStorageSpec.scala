@@ -1,13 +1,13 @@
 package edu.gmu.horde.storage
 
-import java.io.File
+import java.io.{FileReader, BufferedReader, File}
 
 import akka.actor.ActorSystem
 import akka.testkit.TestActorRef
 import edu.gmu.horde.actors.AgentState
 import org.scalatest.WordSpecLike
 import weka.core.Attribute
-
+import weka.core.converters.ArffLoader.ArffReader
 
 class AttributeStorageSpec extends WordSpecLike {
   implicit val system = ActorSystem("MySpec")
@@ -42,8 +42,12 @@ class AttributeStorageSpec extends WordSpecLike {
 
       val file = new File("testdataAgentClass")
       if(file.exists()) {
-        val lines = scala.io.Source.fromFile("testdataAgentClass/TestState.arff").mkString
-        lines.map(println _)
+        val reader = new BufferedReader(new FileReader("testdataAgentClass/TestState.arff"))
+        val arff = new ArffReader(reader)
+        val data = arff.getData()
+        data.setClassIndex(data.numAttributes() - 1);
+        assert(arff.getLineNo == 9)
+        assert(data.instance(0).toString.equals("1,1"))
       } else {
         fail("Storage directory not created")
       }
