@@ -40,6 +40,17 @@ libraryDependencies ++= Seq(
 
 assemblySettings
 
+mergeStrategy in assembly := {
+  case PathList("app", "node_modules", xs @ _*)      => MergeStrategy.discard
+  case PathList("app", "gulp", xs @ _*)              => MergeStrategy.discard
+  case PathList("app", "src", xs @ _*)               => MergeStrategy.discard
+  case PathList("app", "bower_components", xs @ _*)  => MergeStrategy.discard
+  case PathList("app", "e2e", xs @ _*)               => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (mergeStrategy in assembly).value
+    oldStrategy(x)
+}
+
 mainClass in assembly := Some("edu.gmu.horde.Boot")
 
 val deployTask = TaskKey[Unit]("deploy", "Copies assembly jar to remote location")
