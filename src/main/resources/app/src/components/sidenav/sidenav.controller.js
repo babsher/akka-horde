@@ -1,5 +1,5 @@
 'use strict';
-
+// TODO add interval https://docs.angularjs.org/api/ng/service/$interval
 angular.module('app')
   .controller('LeftCtrl', function($scope, $http, $log) {
     $scope.start = false;
