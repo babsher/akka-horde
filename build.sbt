@@ -53,9 +53,17 @@ mergeStrategy in assembly := {
 
 mainClass in assembly := Some("edu.gmu.horde.Boot")
 
-val deployTask = TaskKey[Unit]("deploy", "Copies assembly jar to remote location")
+lazy val deployTask = TaskKey[Unit]("deploy", "Copies assembly jar to remote location")
 
 deployTask <<= assembly map {
   (asm) =>
     IO.copyFile(asm, new File("/home/bryan/VirtualBox VMs/vm/share/akka-horde/" + asm.getName()))
 }
+
+lazy val execScript = taskKey[Unit]("Execute the build script")
+
+execScript := {
+  "./build.sh" !
+}
+
+compile <<= (compile in Compile) dependsOn execScript
