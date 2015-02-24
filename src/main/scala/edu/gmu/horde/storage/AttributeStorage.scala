@@ -22,8 +22,10 @@ object AttributeStorage {
     Props(new AttributeStorage(directory, agentType, stateName, attributes))
 }
 
-class AttributeStorage(val directory :String, val agentType :String, val state :AgentState, val attributes :Seq[Attribute]) extends Actor
-  with AttributeIO {
+class AttributeStorage(val directory :String, val agentType :String, val state :AgentState, val attributes :Seq[Attribute]) 
+    extends Actor
+    with AttributeIO {
+  
   implicit val log = storage.AttributeStorage.log
 
   var instances: Seq[Map[String, AttributeValue]] = List()
