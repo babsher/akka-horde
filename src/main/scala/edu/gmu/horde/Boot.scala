@@ -16,6 +16,7 @@ object Boot extends App with ZergHordeService {
   override val config = ConfigFactory.load()
   override val logger = Logging(system, getClass)
   override val horde: ActorRef = createHorde()
+  horde ! Scenario("zerg-" + new java.util.Date)
 
   Http().bind(interface = config.getString("http.interface"), port = config.getInt("http.port")).startHandlingWith(routes)
 

@@ -27,7 +27,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
   import edu.gmu.horde.actors.HordeFSM.logger
 
   var env :ActorRef = null
-  var root :ActorRef = context.actorOf(Props[Root], "root")
+  var root :ActorRef = null
   var store :ActorRef = null
 
   startWith(Stopped, Uninitialized)
