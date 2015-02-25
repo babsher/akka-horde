@@ -1,7 +1,8 @@
 package edu.gmu.horde.actors
 
 import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{TestActorRef, ImplicitSender, TestKit}
+import edu.gmu.horde.zerg.agents.ProductionAgent
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class HordeFSMSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
@@ -10,6 +11,4 @@ class HordeFSMSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
     with Matchers
     with BeforeAndAfterAll {
 
-  
-  
 }

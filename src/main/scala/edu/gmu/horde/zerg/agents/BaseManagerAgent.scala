@@ -13,6 +13,7 @@ class BaseManagerAgent(var env: ActorRef) extends Actor with ActorLogging {
     case msg @ NewUnit(id: Int, unit: jnibwapi.Unit) =>
       log.debug("Creating drone with {}", msg)
       val drone = context.actorOf(Drone.props(id, unit, env))
+      log.debug("Sending message to parent {} ", context.parent)
       context.parent ! NewAgent(drone, Drone.getClass.getSimpleName)
       drone ! SetEnvironment(env)
     case msg @ Train(train) =>

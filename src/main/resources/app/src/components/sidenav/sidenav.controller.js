@@ -2,8 +2,9 @@
 
 // TODO add interval https://docs.angularjs.org/api/ng/service/$interval
 angular.module('app')
-  .controller('LeftCtrl', function($scope, $http, $log) {
+  .controller('LeftCtrl', function($scope, $http, $log, $interval) {
     function updateState(state) {
+      console.log("Updating state to " + state);
       if("Running" === state) {
         $scope.start = true;
       } else if ("Stopped" === state) {
@@ -35,13 +36,17 @@ angular.module('app')
         });
     };
 
-    $http.get('/api/system').
-      success(function(data, status, headers, config){
-        updateState(data.state);
-      });
+    $interval(function() {
+      $http.get('/api/system').
+        success(function (data, status, headers, config) {
+          updateState(data.state);
+        });
+    }, 5000);
 
-    $http.get('/api/agents').
-      success(function(data, status, headers, config){
-        $scope.agents = data;
-      });
+    $interval(function() {
+      $http.get('/api/agents').
+        success(function (data, status, headers, config) {
+          $scope.agents = data;
+        });
+    }, 10000);
   });

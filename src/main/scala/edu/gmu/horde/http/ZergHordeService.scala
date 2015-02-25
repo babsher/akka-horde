@@ -29,7 +29,6 @@ trait ZergHordeService extends Protocols {
   def zergRequest(request: HttpRequest): Future[HttpResponse] = Source.single(request).via(zergConnectionFlow).runWith(Sink.head)
 
   val routes = {
-    logRequestResult("zerg-microservice") {
       path("") {
         getFromResource("app/dist/index.html")
       } ~ {
@@ -74,7 +73,6 @@ trait ZergHordeService extends Protocols {
           }
         }
       }
-    }
   }
 
   implicit def executor: ExecutionContextExecutor

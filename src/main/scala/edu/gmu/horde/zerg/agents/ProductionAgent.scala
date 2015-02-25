@@ -18,6 +18,9 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
   var totalSupply = 0
 
   override def receive: Receive = {
+    case msg @ NewAgent(_,_) =>
+      log.debug("Sending message to parent {}", context.parent)
+      context.parent ! msg
     case SetManagers(production: ActorRef, military: ActorRef) =>
       this.military = military
     case msg @ Supply(used, total) =>
@@ -39,8 +42,6 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
       checkSupply()
     case Train(train) =>
       context.children.map(child => child ! Train(train))
-    case msg @ NewAgent =>
-      context.parent ! msg
   }
 
   // TODO delete, left as example of build

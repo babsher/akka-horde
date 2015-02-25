@@ -9,6 +9,9 @@ import edu.gmu.horde.zerg.env
 import edu.gmu.horde.zerg.env.ZergEnvironment
 import org.slf4j.LoggerFactory
 
+import scala.collection.immutable
+import scala.collection.immutable.Nil
+
 case object HordeFSM {
   def logger = LoggerFactory.getLogger(this.getClass)
 }
@@ -34,7 +37,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
 
   when(Stopped) {
     case Event(StateTimeout, _) =>
-      goto(Stopped)
+      stay
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Setting up Scenario {}", name)
       root = context.actorOf(Props[Root], "root")
@@ -45,10 +48,11 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
       stay
     case Event(Run(conn), _) =>
       doRun(conn)
-      sender() ! 
     case Event(RequestAgentInfo(null), _) =>
       if(root != null) {
         root ! RequestAgentInfo(context.sender())
+      } else {
+        sender() ! AgentsSummary(Nil)
       }
       stay
     case Event(RequestState, _) =>
@@ -70,6 +74,13 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
       doRun(conn)
     case Event(RequestState, _) =>
       respondToRequestState(sender())
+      stay
+    case Event(RequestAgentInfo(null), _) =>
+      if(root != null) {
+        root ! RequestAgentInfo(context.sender())
+      } else {
+        sender() ! AgentsSummary(Nil)
+      }
       stay
     case Event(State(stateName), _) =>
       if(stateName == Running.toString) {

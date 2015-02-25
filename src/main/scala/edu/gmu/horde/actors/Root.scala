@@ -1,10 +1,10 @@
 package edu.gmu.horde.actors
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{ActorLogging, Actor, ActorRef}
 import edu.gmu.horde._
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
-class Root extends Actor {
+class Root extends Actor with ActorLogging {
   
   var agents = collection.mutable.Map[String, (ActorRef, String)]()
   
@@ -21,6 +21,7 @@ class Root extends Actor {
     case msg @ NewUnit(id, u) =>
       production ! msg
     case msg @ NewAgent(agent, typeName) =>
+      log.debug("Got new agent {}", msg)
       agents += agent.path.toSerializationFormat -> (agent, typeName)
       context.parent ! msg
     case RequestAgentInfo(sender: ActorRef) =>
@@ -32,8 +33,8 @@ class Root extends Actor {
   }
 
   def createManagers(connect :Boolean) :Unit = {
-    miliatry = context.actorOf(MilitaryAgent.props(env))
-    production = context.actorOf(ProductionAgent.props(env))
+    miliatry = context.actorOf(MilitaryAgent.props(env), "military")
+    production = context.actorOf(ProductionAgent.props(env), "production")
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set

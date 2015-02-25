@@ -33,6 +33,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j"   % akkaV,
   "nz.ac.waikato.cms.weka" % "weka-stable" % "3.6.11",
   "com.google.guava" % "guava" % "18.0",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test",
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "junit" % "junit" % "4.12" % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
@@ -63,7 +65,7 @@ deployTask <<= assembly map {
 lazy val execScript = taskKey[Unit]("Execute the build script")
 
 execScript := {
-  "./build.sh" !
+  "./update.sh" !
 }
 
 compile <<= (compile in Compile) dependsOn execScript
