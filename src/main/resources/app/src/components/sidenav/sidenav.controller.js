@@ -16,7 +16,7 @@ angular.module('app')
     $scope.run = function() {
       $http.put('/api/system/run', {connect: true})
         .success(function(data, status, headers, config){
-          updateState(data.state);
+          updateState(data.state.state);
         })
         .error(function(data, status, headers, config) {
           console.log("Error running");
@@ -27,7 +27,7 @@ angular.module('app')
     $scope.stop = function() {
       $http.put('/api/system/run')
         .success(function(data, status, headers, config){
-          updateState(data.state);
+          updateState(data.state.state);
         })
         .error(function(data, status, headers, config) {
           console.log("Error running");
@@ -39,7 +39,7 @@ angular.module('app')
     $interval(function() {
       $http.get('/api/system').
         success(function (data, status, headers, config) {
-          updateState(data.state);
+          updateState(data.state.state);
         });
     }, 5000);
 
