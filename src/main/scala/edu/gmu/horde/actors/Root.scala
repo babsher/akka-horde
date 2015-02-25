@@ -34,7 +34,7 @@ class Root extends Actor with ActorLogging {
 
   def createManagers(connect :Boolean) :Unit = {
     miliatry = context.actorOf(MilitaryAgent.props(env), "military")
-    production = context.actorOf(ProductionAgent.props(env), "production")
+    production = context.actorOf(ProductionAgent.props(env, context.self), "production")
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set

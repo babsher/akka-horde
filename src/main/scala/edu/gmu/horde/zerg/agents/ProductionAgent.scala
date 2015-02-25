@@ -8,10 +8,10 @@ import jnibwapi.types.UnitType
 import jnibwapi.types.UnitType.UnitTypes
 
 object ProductionAgent {
-  def props(env :ActorRef) = Props(new ProductionAgent(env))
+  def props(env :ActorRef, root: ActorRef) = Props(new ProductionAgent(env, root))
 }
 
-class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
+class ProductionAgent(val env :ActorRef,val root: ActorRef) extends Actor with ActorLogging {
   var military :ActorRef = null
   var larva :Seq[Int] = Seq[Int]()
   var supply = 0
@@ -19,8 +19,8 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case msg @ NewAgent(_,_) =>
-      log.debug("Sending message to parent {}", context.parent)
-      context.parent ! msg
+      log.debug("Sending message to parent {}", root)
+      root ! msg
     case SetManagers(production: ActorRef, military: ActorRef) =>
       this.military = military
     case msg @ Supply(used, total) =>
@@ -65,7 +65,7 @@ class ProductionAgent(env :ActorRef) extends Actor with ActorLogging {
     }
   }
 
-  def getBaseAgent(pos: Position) :ActorRef = {
-    context.actorOf(BaseManagerAgent.props(env))
+  def getBaseAgent(pos: Position): ActorRef = {
+    context.actorOf(BaseManagerAgent.props(env, root))
   }
 }
