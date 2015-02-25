@@ -59,15 +59,14 @@ trait ZergHordeService extends Protocols {
           } ~
           pathPrefix("run") {
             (put & entity(as[Run])) { msg =>
-              complete((horde ? msg).mapTo[State])
+              complete((horde ? msg).mapTo[HordeState])
             }
           } ~
           (pathPrefix("stop") & put) {
-            complete((horde ? Stop).mapTo[State])
+            complete((horde ? Stop).mapTo[HordeState])
           } ~
           post {
             (post & path(Segment)) { id =>
-              System.out.print("Sending message to agent: " + id)
               entity(as[State]) { msg =>
                 complete((getActorPath(id) ? msg).mapTo[State])
               }
@@ -84,6 +83,7 @@ trait ZergHordeService extends Protocols {
 
   def getActorPath(id: String): ActorSelection = {
     val path = new String(BaseEncoding.base64Url().decode(id))
+    logger.debug("Deserialized actor path: {}", path)
     system.actorSelection(path)
   }
 }

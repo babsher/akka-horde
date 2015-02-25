@@ -45,6 +45,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
       stay
     case Event(Run(conn), _) =>
       doRun(conn)
+      sender() ! 
     case Event(RequestAgentInfo(null), _) =>
       if(root != null) {
         root ! RequestAgentInfo(context.sender())
@@ -63,6 +64,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
 
   when(Running) {
     case Event(Stop, _) =>
+      sender() ! HordeState(self, State(Stopped.toString), root)
       goto(Stopped)
     case Event(Run(conn), _) =>
       doRun(conn)
@@ -91,6 +93,7 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
     if(root != null) {
       root ! Run(connect)
       env ! Run(connect)
+      sender() ! HordeState(self, State(Running.toString), root)
       goto(Running) using new EnvironmentData(env)
     } else {
       stay
