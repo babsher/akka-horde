@@ -1,14 +1,13 @@
 package edu.gmu.horde.zerg.agents
 
-import akka.actor.{ ActorRef, LoggingFSM, Props }
+import akka.actor.{ActorRef, LoggingFSM, Props}
 import edu.gmu.horde._
-import edu.gmu.horde.actors.{HasAction, AgentState, HordeAgentFSM, Action}
-import edu.gmu.horde.features.{ UnitFeatures, SimpleFeatures }
+import edu.gmu.horde.actors.{Action, AgentState, HordeAgentFSM}
+import edu.gmu.horde.features.{SimpleFeatures, UnitFeatures}
 import edu.gmu.horde.storage.AttributeValue
-import edu.gmu.horde.zerg.env.{ AttackNearest, BuildBuilding, MoveToNearestMineral }
-import jnibwapi.{ Unit => BUnit }
+import edu.gmu.horde.zerg.env.{BuildBuilding, MoveToNearestMineral}
+import jnibwapi.{Unit => BUnit}
 import weka.core.Attribute
-import akka.actor.FSM
 
 object Drone {
 
@@ -138,6 +137,9 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
     case Harvest =>   Action(() => {harvestAction()}, () => {}, () => {})
     case Attacking => Action(() => {attackAction()}, () => {}, () => {})
     case Build =>     Action(() => {buildAction()}, () => {}, () => {})
+    case default => 
+      log.debug("Cound not find action for state: %s", state)
+      NullAction
   }
 
   override def getType: String = Drone.getClass.getSimpleName

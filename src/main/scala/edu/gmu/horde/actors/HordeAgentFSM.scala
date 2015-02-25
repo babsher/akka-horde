@@ -21,8 +21,7 @@ import scala.concurrent.duration._
  * @param S denotes the user specified state, e.g. Initialized, Started
  * @param D denotes the user specified data model
  */
-trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
-  this: FSM[S, D] =>
+trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with Messages {
   var attributeStore: ActorRef = _
   var store: Map[S, ActorRef] = Map()
   var training = false
@@ -175,15 +174,11 @@ trait HordeAgentFSM[S <: AgentState, D] extends AttributeIO with Messages {
   def features(state: S): Map[String, AttributeValue]
 
   def getType: String
-}
-
-case class Action(onEnter: () => Unit, onTick: () => Unit, onExit: () => Unit);
-
-trait HasAction[T] {
-  def getAction(t: T): Action
 
   def NullAction = Action(() => {}, () => {}, () => {})
 }
+
+case class Action(onEnter: () => Unit, onTick: () => Unit, onExit: () => Unit);
 
 trait AgentState {
   def name: String
