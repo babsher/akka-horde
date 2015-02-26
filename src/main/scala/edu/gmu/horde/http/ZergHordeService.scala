@@ -3,7 +3,7 @@ package edu.gmu.horde.http
 import akka.actor.{ActorRef, ActorSelection, ActorSystem}
 import akka.event.LoggingAdapter
 import akka.http.Http
-import akka.http.model.{HttpRequest, HttpResponse}
+import akka.http.model.{HttpHeader, HttpRequest, HttpResponse}
 import akka.http.server.Directives._
 import akka.http.server.PathMatchers.Segment
 import akka.stream.FlowMaterializer
@@ -13,6 +13,7 @@ import com.google.common.io.BaseEncoding
 import com.typesafe.config.Config
 import edu.gmu.horde._
 import akka.pattern.ask
+import akka.http.model.headers.{CacheDirectives, `Cache-Control`}
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
@@ -29,50 +30,52 @@ trait ZergHordeService extends Protocols {
   def zergRequest(request: HttpRequest): Future[HttpResponse] = Source.single(request).via(zergConnectionFlow).runWith(Sink.head)
 
   val routes = {
+    respondWithHeader(`Cache-Control`(CacheDirectives.`no-cache`)) {
       path("") {
         getFromResource("app/dist/index.html")
       } ~ {
         getFromResourceDirectory("app/dist/")
       } ~
-      pathPrefix("api") {
-        pathPrefix("agents") {
-          get {
-            complete((horde ? RequestAgentInfo(null)).mapTo[AgentsSummary])
-          } ~
-          pathPrefix("agent") {
-            (get & path(Segment)) { id =>
-              complete((getActorPath(id) ? RequestAgentDetail).mapTo[AgentDetail])
-            }
-          } ~
-          pathPrefix("train") {
-            (post & path(Segment)) { id =>
-              entity(as[Train]) { msg =>
-                complete((getActorPath(id) ? msg).mapTo[Train])
+        pathPrefix("api") {
+          pathPrefix("agents") {
+            get {
+              complete((horde ? RequestAgentInfo(null)).mapTo[AgentsSummary])
+            } ~
+              pathPrefix("agent") {
+                (get & path(Segment)) { id =>
+                  complete((getActorPath(id) ? RequestAgentDetail).mapTo[AgentDetail])
+                }
+              } ~
+              pathPrefix("train") {
+                (post & path(Segment)) { id =>
+                  entity(as[Train]) { msg =>
+                    complete((getActorPath(id) ? msg).mapTo[Train])
+                  }
+                }
               }
-            }
-          }
-        } ~
-        pathPrefix("system") {
-          get {
-            complete((horde ? RequestState).mapTo[HordeState])
           } ~
-          pathPrefix("run") {
-            (put & entity(as[Run])) { msg =>
-              complete((horde ? msg).mapTo[HordeState])
+            pathPrefix("system") {
+              get {
+                complete((horde ? RequestState).mapTo[HordeState])
+              } ~
+                pathPrefix("run") {
+                  (put & entity(as[Run])) { msg =>
+                    complete((horde ? msg).mapTo[HordeState])
+                  }
+                } ~
+                (pathPrefix("stop") & put) {
+                  complete((horde ? Stop).mapTo[HordeState])
+                } ~
+                post {
+                  (post & path(Segment)) { id =>
+                    entity(as[State]) { msg =>
+                      complete((getActorPath(id) ? msg).mapTo[State])
+                    }
+                  }
+                }
             }
-          } ~
-          (pathPrefix("stop") & put) {
-            complete((horde ? Stop).mapTo[HordeState])
-          } ~
-          post {
-            (post & path(Segment)) { id =>
-              entity(as[State]) { msg =>
-                complete((getActorPath(id) ? msg).mapTo[State])
-              }
-            }
-          }
         }
-      }
+    }
   }
 
   implicit def executor: ExecutionContextExecutor
