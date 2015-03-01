@@ -9,16 +9,16 @@ angular.module('app')
       function updateCreator(i) {
         return function () {
           var name = selected[i];
-          $scope.agents[i] = {
-            name: "test" + i,
-            agentType: "testType",
-            currentState: {state: "Start"},
-            states: [
-              {state: "Start", nextState: true},
-              {state: "Next", nextState: true},
-              {state: "Not Next", nextState: false}
-            ]
-          };
+          //$scope.agents[i] = {
+          //  name: "test" + i,
+          //  agentType: "testType",
+          //  currentState: {state: "Start"},
+          //  states: [
+          //    {state: "Start", nextState: true},
+          //    {state: "Next", nextState: true},
+          //    {state: "Not Next", nextState: false}
+          //  ]
+          //};
           $http.get('/api/agents/agent/' + name).
             success(function (data, status, headers, config) {
               $scope.agents[i] = data;
@@ -32,7 +32,7 @@ angular.module('app')
         }
       }
 
-      //$interval(update, 5000);
+      $interval(update, 5000);
 
       agentSelection.addCallback(function(sel){
         selected = sel;

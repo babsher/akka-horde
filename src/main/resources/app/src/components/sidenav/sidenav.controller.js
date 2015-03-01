@@ -70,6 +70,6 @@ angular.module('app')
       {type: "test", name: "test5"},
       {type: "test", name: "test6"}];
 
-    //$interval(updateSystem, 5000);
-    //$interval(updateAgents, 5000);
+    $interval(updateSystem, 5000);
+    $interval(updateAgents, 5000);
   });
