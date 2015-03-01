@@ -13,4 +13,10 @@ html {
 .md-sidenav-left .md-button {
   display: block;
   margin: 1em;
-  line-height: 30px; }
+  line-height: 30px;
+}
+
+.inlineCheckbox {
+  display: inline;
+
+}

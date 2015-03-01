@@ -10,6 +10,10 @@ trait Messages {
     val path = a.path.toSerializationFormat
     new String(BaseEncoding.base64Url().encode(path.getBytes))
   }
+  
+  def serializePath(path: String): String = {
+    new String(BaseEncoding.base64Url().encode(path.getBytes))
+  }
 }
 
 case class Subscribe(id: Int, ref: ActorRef)
@@ -39,7 +43,7 @@ case object RequestAgentDetail
 case class AgentDetail(agent: String, agentType: String, currentState: State, states: Seq[State], features: Map[String, AttributeValue])
 case class RequestAgentInfo(sender: ActorRef)
 
-case class AgentInfo(name: String, agentType: String)
+case class AgentInfo(name: String, agentType: String, unitId: Int)
 case class AgentsSummary(agents: Seq[AgentInfo])
 
 case object RequestState

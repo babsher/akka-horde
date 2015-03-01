@@ -4,7 +4,7 @@ import akka.actor.{ActorLogging, Actor, ActorRef}
 import edu.gmu.horde._
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
-class Root extends Actor with ActorLogging {
+class Root extends Actor with ActorLogging with Messages {
   
   var agents = collection.mutable.Map[String, (ActorRef, String)]()
   
@@ -25,7 +25,7 @@ class Root extends Actor with ActorLogging {
       agents += agent.path.toSerializationFormat -> (agent, typeName)
       context.parent ! msg
     case RequestAgentInfo(sender: ActorRef) =>
-      val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(id, typeName)
+      val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(serializePath(id), typeName)
       sender ! AgentsSummary(a toSeq)
     case msg @ _ =>
       production ! msg

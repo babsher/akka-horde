@@ -11,4 +11,30 @@ angular.module('app', ['ngMaterial', 'ngAnimate', 'ui.router'])
 
     $urlRouterProvider.otherwise('/');
   })
+  .service('agentSelection', function() {
+    var selected = [];
+    var callbacks = [];
+
+    function update() {
+      console.log("Setting selection to " + selected);
+      for(var i = 0; i < callbacks.length; i++) {
+        callbacks[i](selected);
+      }
+    }
+
+    return {
+      addCallback: function(func) {
+        callbacks.push(func);
+      },
+
+      getSelected: function() {
+        return selected;
+      },
+
+      setSelected: function(sel) {
+        selected = sel;
+        update();
+      }
+    }
+  })
 ;

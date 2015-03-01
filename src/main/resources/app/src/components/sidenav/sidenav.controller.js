@@ -1,8 +1,7 @@
 'use strict';
 
-// TODO add interval https://docs.angularjs.org/api/ng/service/$interval
 angular.module('app')
-  .controller('LeftCtrl', function($scope, $http, $log, $interval) {
+  .controller('LeftCtrl', function($scope, $http, $log, $interval, agentSelection) {
     function updateState(state) {
       console.log("Updating state to " + state);
       if("Running" === state) {
@@ -11,6 +10,18 @@ angular.module('app')
         $scope.start = false;
       }
     }
+
+    $scope.agentSelection = [];
+
+    $scope.$watchCollection('agentSelection', function(newSelection, oldSelection) {
+      var sel = [];
+      for(var i = 0; i < newSelection.length; i++) {
+        if(newSelection[i]) {
+          sel.push($scope.agents[i].name);
+        }
+      }
+      agentSelection.setSelected(sel);
+    });
 
     $scope.start = false;
     $scope.run = function() {
@@ -43,10 +54,13 @@ angular.module('app')
         });
     }, 5000);
 
+    $scope.agents = [{type:"test", name: "test1"}, {type:"test", name: "test2"},{type:"test", name: "test3"}, {type:"test", name: "test4"},{type:"test", name: "test5"}, {type:"test", name: "test6"}];
     $interval(function() {
       $http.get('/api/agents').
         success(function (data, status, headers, config) {
-          $scope.agents = data;
+          if(data.agents.length > 0) {
+            $scope.agents = data.agents;
+          }
         });
     }, 10000);
   });

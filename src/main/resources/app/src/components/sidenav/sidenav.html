@@ -8,12 +8,21 @@
   <md-content class="md-padding md-whiteframe-z2" ng-controller="LeftCtrl">
     <md-button class="md-raised md-primary" ng-show="!start" ng-Click="run()">Start Horde</md-button>
     <md-button class="md-raised md-warn" ng-show="start" ng-Click="stop()">Stop Horde</md-button>
+
+    <p>Num Agents: {{agents.length}}</p>
+
+    <md-content>
+      <md-card ng-repeat="agent in agents">
+        <md-card-content>
+          {{$index + 1}}.
+          <md-checkbox ng-model="agentSelection[$index]" class="inlineCheckbox">
+            <span style="font-weight: bold">{{agent.type}}:</span>
+            <span>{{agent.name}} {{agent.unitId}} {{agent.selected}}</span>
+          </md-checkbox>
+        </md-card-content>
+      </md-card>
+    </md-content>
   </md-content>
 
-  <md-card ng-repeat="agent in agents">
-    <div>
-      <h3>{{agent.type}}</h3>
-      <p>{{agent.name}}</p>
-    </div>
-  </md-card>
+
 </md-sidenav>
