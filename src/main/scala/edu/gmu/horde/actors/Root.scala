@@ -5,8 +5,10 @@ import edu.gmu.horde._
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
 class Root extends Actor with ActorLogging with Messages {
+
+  case class Agent(ref: ActorRef, parent: ActorRef, typeName: String, unitId: Option[Int])
   
-  var agents = collection.mutable.Map[String, (ActorRef, String)]()
+  var agents = collection.mutable.Map[String, Agent]()
   
   var miliatry :ActorRef = null
   var production :ActorRef = null
@@ -20,12 +22,14 @@ class Root extends Actor with ActorLogging with Messages {
       env = e
     case msg @ NewUnit(id, u) =>
       production ! msg
-    case msg @ NewAgent(agent, typeName) =>
+    case msg @ NewAgent(agent, parent, typeName, unitId) =>
       log.debug("Got new agent {}", msg)
-      agents += agent.path.toSerializationFormat -> (agent, typeName)
+      agents += agent.path.toSerializationFormat -> Agent(agent, parent, typeName, unitId)
       context.parent ! msg
     case RequestAgentInfo(sender: ActorRef) =>
-      val a = for((id: String, (agent: ActorRef, typeName: String)) <- agents) yield AgentInfo(serializePath(id), typeName)
+      val a = 
+        for((id: String, agent: Agent) <- agents)
+          yield AgentInfo(agent.ref, agent.parent, agent.typeName, agent.unitId)
       sender ! AgentsSummary(a toSeq)
     case msg @ _ =>
       production ! msg

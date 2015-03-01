@@ -75,7 +75,8 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
         stay
 
       case Event(RequestAgentDetail, _) =>
-        val stateStrings = states.map(s => StateMsg(s.name))
+        val stateStrings = states.map(s => 
+          AgentPossibleStates(s.name, toStates contains s, isCurrentState(s)))
         sender ! AgentDetail(self, getType, currentState, stateStrings, features(fromState))
         stay
 
@@ -116,6 +117,10 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
 
   def currentState: StateMsg = {
     StateMsg(stateName.name)
+  }
+  
+  def isCurrentState(state: S) = {
+    stateName == state
   }
 
   def respondToRequestState(sender: ActorRef): Unit = {

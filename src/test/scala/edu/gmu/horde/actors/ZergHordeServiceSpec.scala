@@ -21,7 +21,7 @@ class ZergHordeServiceSpec extends FlatSpec with Matchers with ScalatestRouteTes
   override def config = testConfig
   override val logger = NoLogging
 
-  val agentInfo = AgentInfo("test", "") :: Nil
+  val agentInfo = AgentInfo("test", "parentTest", "testType", None) :: Nil
   val agentSummary = AgentsSummary(agentInfo)
   override val horde: ActorRef = TestActorRef(new Actor {
     def receive = {

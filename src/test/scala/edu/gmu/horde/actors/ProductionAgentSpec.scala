@@ -27,11 +27,10 @@ class ProductionAgentSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
 
   "Production Agent " must {
     "will send root new Agent" in {
-      val msg = NewAgent(droneRef, "Drone")
+      val msg = NewAgent(droneRef, self, "Drone", Option(1))
       actorRef ! msg
     }
-    
-    
+
     "will forward new drone " in {
       val player = mock[jnibwapi.Player]
       when(player.isSelf).thenReturn(true)

@@ -25,7 +25,7 @@ case class UnitCmd(id: Int, cmd: UnitCommand)
 case class OnFrame()
 
 case class NewUnit(id: Int, unit: jnibwapi.Unit)
-case class NewAgent(agent: ActorRef, typeName: String)
+case class NewAgent(agent: ActorRef, parent: ActorRef, typeName: String, unitId: Option[Int])
 
 case class SetManagers(production: ActorRef, military: ActorRef)
 
@@ -43,10 +43,10 @@ case object RequestAgentDetail
 case class AgentDetail(name: String, agentType: String, currentState: State, states: Seq[AgentPossibleStates], features: Map[String, AttributeValue])
 case class RequestAgentInfo(sender: ActorRef)
 
-case class AgentInfo(name: String, agentType: String, unitId: Int)
+case class AgentInfo(name: String, parent: String, agentType: String, unitId: Option[Int])
 case class AgentsSummary(agents: Seq[AgentInfo])
 
 case object RequestState
 case class State(state: String)
-case class AgentPossibleStates(state: String, nextState: Boolean)
+case class AgentPossibleStates(state: String, nextState: Boolean, isCurrent: Boolean)
 case class HordeState(horde: String, state: State, root: String)

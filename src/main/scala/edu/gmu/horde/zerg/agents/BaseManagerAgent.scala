@@ -14,7 +14,7 @@ class BaseManagerAgent(val env: ActorRef, val root: ActorRef) extends Actor with
       log.debug("Creating drone with {}", msg)
       val drone = context.actorOf(Drone.props(id, unit, env))
       log.debug("Sending message to root {} ", root)
-      root ! NewAgent(drone, Drone.getClass.getSimpleName)
+      root ! NewAgent(drone, self, Drone.getClass.getSimpleName, Option(id))
       drone ! SetEnvironment(env)
     case msg @ Train(train) =>
       context.children.map(child => child ! msg)

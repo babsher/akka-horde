@@ -18,9 +18,6 @@ class ProductionAgent(val env :ActorRef,val root: ActorRef) extends Actor with A
   var totalSupply = 0
 
   override def receive: Receive = {
-    case msg @ NewAgent(_,_) =>
-      log.debug("Sending message to parent {}", root)
-      root ! msg
     case SetManagers(production: ActorRef, military: ActorRef) =>
       this.military = military
     case msg @ Supply(used, total) =>
