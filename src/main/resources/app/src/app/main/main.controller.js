@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('app')
-  .controller('MainCtrl', ['$scope', '$http', '$interval', 'agentSelection',
-    function ($scope, $http, $interval, agentSelection) {
+  .controller('MainCtrl', ['$scope', '$http', '$interval', '$animate', 'agentSelection',
+    function ($scope, $http, $interval, $animate, agentSelection) {
       var selected = [];
       $scope.agents = [];
 
@@ -19,9 +19,11 @@ angular.module('app')
           //    {state: "Not Next", nextState: false}
           //  ]
           //};
-          $http.get('/api/agents/agent/' + name).
+          $http.get('/api/agent/' + window.btoa(name)).
             success(function (data, status, headers, config) {
+              $animate.enabled(false);
               $scope.agents[i] = data;
+              $animate.enabled(true);
             });
         }
       }
@@ -32,7 +34,7 @@ angular.module('app')
         }
       }
 
-      $interval(update, 5000);
+      $interval(update, 250);
 
       agentSelection.addCallback(function(sel){
         selected = sel;

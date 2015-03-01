@@ -8,11 +8,13 @@ import jnibwapi.UnitCommand
 trait Messages {
   implicit def actorRefWrapper(a: ActorRef): String = {
     val path = a.path.toSerializationFormat
-    new String(BaseEncoding.base64Url().encode(path.getBytes))
+    //new String(BaseEncoding.base64Url().encode(path.getBytes))
+    path
   }
   
   def serializePath(path: String): String = {
-    new String(BaseEncoding.base64Url().encode(path.getBytes))
+//    new String(BaseEncoding.base64Url().encode(path.getBytes))
+    path
   }
 }
 

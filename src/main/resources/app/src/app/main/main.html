@@ -9,7 +9,7 @@
       currentState: State,
       states: Seq[AgentPossibleStates],
       features: Map[String, AttributeValue]) -->
-      <md-card ng-repeat="agent in agents">
+      <md-card ng-repeat="agent in agents track by agent.name">
         <div class="thumbnail">
           <div class="caption">
             <h3>{{agent.name}}</h3>

@@ -12,13 +12,13 @@
     <p>Num Agents: {{agents.length}}</p>
 
     <md-content>
-      <md-card ng-repeat="agent in agents">
+      <md-card ng-repeat="agent in agents track by agent.name">
         <md-card-content>
           {{$index + 1}}.
           <md-checkbox ng-model="agentSelection[$index]" class="inlineCheckbox">
-            <span style="font-weight: bold">{{agent.type}}:</span>
-            <span>{{agent.name}} {{agent.unitId}} {{agent.selected}}</span>
+            <p class="sm-agentType">{{agent.agentType}} {{agent.unitId}}</p>
           </md-checkbox>
+          <p class="sm-agentName">{{agent.name}}</p>
         </md-card-content>
       </md-card>
     </md-content>

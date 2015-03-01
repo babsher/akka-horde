@@ -18,5 +18,15 @@ html {
 
 .inlineCheckbox {
   display: inline;
+}
 
+.sm-agentType {
+  font-weight: bold;
+  margin: 0px;
+  padding: 0px;
+}
+
+.sm-agentName {
+  font-size: 8pt;
+  margin: 0px;
 }

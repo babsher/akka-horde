@@ -63,13 +63,14 @@ angular.module('app')
         });
     }
 
-    $scope.agents = [{type: "test", name: "test1"},
-      {type: "test", name: "test2"},
-      {type: "test", name: "test3"},
-      {type: "test", name: "test4"},
-      {type: "test", name: "test5"},
-      {type: "test", name: "test6"}];
+    //$scope.agents = [
+    //  {typeName: "test", name: "test1"},
+    //  {typeName: "test", name: "test2"},
+    //  {typeName: "test", name: "test3"},
+    //  {typeName: "test", name: "test4"},
+    //  {typeName: "test", name: "test5"},
+    //  {typeName: "test", name: "test6"}];
 
-    $interval(updateSystem, 5000);
-    $interval(updateAgents, 5000);
+    $interval(updateSystem, 250);
+    $interval(updateAgents, 250);
   });
