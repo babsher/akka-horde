@@ -40,7 +40,7 @@ case object Stop
 case class Train(train: Boolean)
 
 case object RequestAgentDetail
-case class AgentDetail(agent: String, agentType: String, currentState: State, states: Seq[State], features: Map[String, AttributeValue])
+case class AgentDetail(name: String, agentType: String, currentState: State, states: Seq[AgentPossibleStates], features: Map[String, AttributeValue])
 case class RequestAgentInfo(sender: ActorRef)
 
 case class AgentInfo(name: String, agentType: String, unitId: Int)
@@ -48,4 +48,5 @@ case class AgentsSummary(agents: Seq[AgentInfo])
 
 case object RequestState
 case class State(state: String)
+case class AgentPossibleStates(state: String, nextState: Boolean)
 case class HordeState(horde: String, state: State, root: String)

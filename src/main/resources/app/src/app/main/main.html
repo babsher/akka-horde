@@ -4,16 +4,25 @@
 
   <md-content layout="column" flex>
     <md-content flex class="md-padding">
-      <md-card ng-repeat="awesomeThing in awesomeThings | orderBy:'rank'">
+      <!--AgentDetail(name: String,
+      agentType: String,
+      currentState: State,
+      states: Seq[AgentPossibleStates],
+      features: Map[String, AttributeValue]) -->
+      <md-card ng-repeat="agent in agents">
         <div class="thumbnail">
           <div class="caption">
-            <h3>{{awesomeThing.title}}</h3>
-            <p>{{awesomeThing.description}}</p>
-            <p><a ng-href="{{awesomeThing.url}}">{{awesomeThing.url}}</a></p>
+            <h3>{{agent.name}}</h3>
+            <p>Type: {{agent.agentType}}</p>
+            <p>Current State: {{agent.currentState.state}}</p>
+            <section layout="row" layout-sm="column" layout-align="center center">
+              <md-button ng-repeat="state in agent.states" ng-disabled="!state.nextState" class="md-raised">
+                {{state.state}}
+              </md-button>
+            </section>
           </div>
         </div>
       </md-card>
     </md-content>
   </md-content>
-
 </div>
