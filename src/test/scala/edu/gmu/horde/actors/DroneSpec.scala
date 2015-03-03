@@ -34,18 +34,22 @@ with Messages {
   when(unit.getType).thenReturn(UnitType.UnitTypes.Zerg_Drone)
 
   "Drone Agent" must {
-    val droneRef = TestActorRef(new Drone(unitId, unit, envRef))
+    val droneRef = system.actorOf(Drone.props(unitId, unit, envRef))
 
     "return agent detail when requested" in {
       droneRef ! RequestAgentDetail
       val possibleStates =
         AgentPossibleStates("Idle",     true, false) ::
         AgentPossibleStates("Start",    true, true) ::
-        AgentPossibleStates("Retreat",  true, false) ::
-        AgentPossibleStates("Attacking", true, false) ::
-        AgentPossibleStates("Harvest",  true, false) ::
+        AgentPossibleStates("Build",    false, false) ::
+        AgentPossibleStates("Attacking", false, false) ::
+        AgentPossibleStates("Harvest",  false, false) ::
         AgentPossibleStates("Retreat",  false, false) :: Nil
-      expectMsg(AgentDetail(droneRef, "Drone$", State("Start"), possibleStates, Map("TrueFeature" -> DoubleValue(1))))
+      expectMsg(
+        AgentDetail(droneRef, "Drone$",
+        State("Start"),
+        possibleStates,
+        Map("TrueFeature" -> DoubleValue(1))))
     }
   }
 

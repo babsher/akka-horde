@@ -61,7 +61,7 @@ public class BWInterface {
         reader.start();
         while(!connected.get()) {
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) { }
         }
         log.info("BW Interface Connected!");
@@ -97,7 +97,7 @@ public class BWInterface {
         @Override
         public void matchStart() {
             bwapi.enableUserInput();
-            bwapi.setGameSpeed(0);
+//            bwapi.setGameSpeed(0);
             bwapi.sendText("Started horde interface");
             bwapi.drawIDs(true);
 

@@ -53,7 +53,7 @@ object Drone {
 
   case object Build extends States {
     override def attributes: Seq[Attribute] = Seq(new Attribute(TrueFeatureName))
-    override def name(): String = "Retreat"
+    override def name(): String = "Build"
     override def features(d: Drone): Map[String, AttributeValue] = {
       Map(TrueFeature)
     }
@@ -82,19 +82,23 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
 
   import edu.gmu.horde.zerg.agents.Drone._
 
-  override def states = Drone.Idle :: Drone.Start :: Drone.Build :: Drone.Attacking :: Drone.Harvest :: Drone.Retreat :: Nil
+  override def states = Drone.Idle ::
+    Drone.Start ::
+    Drone.Build ::
+    Drone.Attacking ::
+    Drone.Harvest ::
+    Drone.Retreat :: Nil
 
   startWith(Drone.Start, Drone.Uninitialized)
 
   from(Drone.Idle) {
-    Drone.Build :: Drone.Harvest :: Nil
+    Drone.Build ::
+    Drone.Attacking ::
+    Drone.Harvest :: Nil
   }
 
   from(Drone.Start) {
-    Drone.Idle ::
-    Drone.Attacking ::
-    Drone.Harvest ::
-    Drone.Build :: Nil
+    Drone.Idle :: Nil
   }
 
   from(Drone.Harvest) {
@@ -114,7 +118,7 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
 
   def startAction(): Unit = {
-    goto(Harvest)
+    goto(Idle)
   }
 
   private def buildAction(): Unit = {

@@ -9,16 +9,16 @@ angular.module('app')
       function updateCreator(i) {
         return function () {
           var name = selected[i];
-          $scope.agents[i] = {
-              name: name + '-' + i,
-              agentType: "testType",
-              currentState: {state: "Start"},
-              states: [
-                {state: "Start", nextState: true},
-                {state: "Next", nextState: true},
-                {state: "Not Next", nextState: false}
-              ]
-            };
+          //$scope.agents[i] = {
+          //    name: name + '-' + i,
+          //    agentType: "testType",
+          //    currentState: {state: "Start"},
+          //    states: [
+          //      {state: "Start", nextState: true},
+          //      {state: "Next", nextState: true},
+          //      {state: "Not Next", nextState: false}
+          //    ]
+          //  };
             return $http.get('/api/agent/' + window.btoa(name));
         }
       }
@@ -29,7 +29,9 @@ angular.module('app')
           promises.push(updateCreator(i)());
         }
         $q.all(promises).then(function(data){
-          $scope.agents = data;
+          $scope.agents = data.map(function(el){
+            return el.data;
+          });
           $log.debug($scope.agents);
         }, function(reason) {
           $log.debug('Failed: ', reason);
@@ -37,7 +39,7 @@ angular.module('app')
 
       }
 
-      $interval(update, 250);
+      $interval(update, 1000);
 
       agentSelection.addCallback(function(sel){
         console.log("Setting selection to " + selected);

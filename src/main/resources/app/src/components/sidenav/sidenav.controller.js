@@ -53,14 +53,14 @@ angular.module('app')
         });
     }
 
-    $scope.agents = [
-      {agentType: "test", name: "test1333333333333333333333333333333333333333333333333333333333333333333"},
-      {agentType: "test", name: "test2"},
-      {agentType: "test", name: "test3"},
-      {agentType: "test", name: "test4"},
-      {agentType: "test", name: "test5"},
-      {agentType: "test", name: "test6"}];
+    //$scope.agents = [
+    //  {agentType: "test", name: "test1333333333333333333333333333333333333333333333333333333333333333333"},
+    //  {agentType: "test", name: "test2"},
+    //  {agentType: "test", name: "test3"},
+    //  {agentType: "test", name: "test4"},
+    //  {agentType: "test", name: "test5"},
+    //  {agentType: "test", name: "test6"}];
 
-    $interval(updateSystem, 250);
-    $interval(updateAgents, 250);
+    $interval(updateSystem, 1000);
+    $interval(updateAgents, 1000);
   });

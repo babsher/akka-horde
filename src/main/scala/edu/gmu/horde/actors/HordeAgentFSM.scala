@@ -23,6 +23,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
   val targetAttribute = "nextState"
   val target = new Attribute(targetAttribute)
   for (state <- states) {
+    // TODO make sure name matches classname
     target.addStringValue(state.name)
   }
   lazy val models: Map[S, Classifier] = loadModels(ConfigFactory.load().getString("horde.modelDir"))
@@ -66,10 +67,10 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
         stay
 
       case Event(RequestAgentDetail, _) =>
-        val possibleStates = states.map(s =>
-          AgentPossibleStates(s.name,
-            (toStates contains s) || isCurrentState(s),
-            isCurrentState(s)))
+        println("States " + states)
+        val possibleStates = for(s <- states) yield
+          AgentPossibleStates(s.name, (toStates contains s) || isCurrentState(s), isCurrentState(s))
+        println("Possibles states " + possibleStates)
         sender ! AgentDetail(self, getType, currentState, possibleStates, features(fromState))
         stay
 
