@@ -29,4 +29,21 @@ html {
 .sm-agentName {
   font-size: 8pt;
   margin: 0px;
+  word-wrap: break-word;
+}
+
+.stateButton {
+  margin: .5em;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.stateButton .md-button {
+  min-width: 6em;
+  margin: .5em;
+}
+
+.agentCard {
+  margin: .5em;
+
 }

@@ -28,22 +28,12 @@ angular.module('app')
       $http.put('/api/system/run', {connect: true})
         .success(function (data, status, headers, config) {
           updateState(data.state.state);
-        })
-        .error(function (data, status, headers, config) {
-          console.log("Error running");
-          console.log(data);
-          console.log(status);
         });
     };
     $scope.stop = function () {
       $http.put('/api/system/run')
         .success(function (data, status, headers, config) {
           updateState(data.state.state);
-        })
-        .error(function (data, status, headers, config) {
-          console.log("Error running");
-          console.log(data);
-          console.log(status);
         });
     };
 
@@ -63,13 +53,13 @@ angular.module('app')
         });
     }
 
-    //$scope.agents = [
-    //  {typeName: "test", name: "test1"},
-    //  {typeName: "test", name: "test2"},
-    //  {typeName: "test", name: "test3"},
-    //  {typeName: "test", name: "test4"},
-    //  {typeName: "test", name: "test5"},
-    //  {typeName: "test", name: "test6"}];
+    $scope.agents = [
+      {agentType: "test", name: "test1333333333333333333333333333333333333333333333333333333333333333333"},
+      {agentType: "test", name: "test2"},
+      {agentType: "test", name: "test3"},
+      {agentType: "test", name: "test4"},
+      {agentType: "test", name: "test5"},
+      {agentType: "test", name: "test6"}];
 
     $interval(updateSystem, 250);
     $interval(updateAgents, 250);

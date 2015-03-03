@@ -4,19 +4,16 @@
 
   <md-content layout="column" flex>
     <md-content flex class="md-padding">
-      <!--AgentDetail(name: String,
-      agentType: String,
-      currentState: State,
-      states: Seq[AgentPossibleStates],
-      features: Map[String, AttributeValue]) -->
       <md-card ng-repeat="agent in agents track by agent.name">
-        <div class="thumbnail">
+        <div class="agentCard">
           <div class="caption">
             <h3>{{agent.name}}</h3>
             <p>Type: {{agent.agentType}}</p>
             <p>Current State: {{agent.currentState.state}}</p>
-            <section layout="row" layout-sm="column" layout-align="center center">
-              <md-button ng-repeat="state in agent.states" ng-disabled="!state.nextState" class="md-raised">
+            <section class="stateButton" layout="row" layout-sm="column" layout-align="center center">
+              <md-button  ng-repeat="state in agent.states track by state.state"
+                         ng-disabled="!state.nextState"
+                         class="md-raised">
                 {{state.state}}
               </md-button>
             </section>

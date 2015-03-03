@@ -16,7 +16,6 @@ angular.module('app', ['ngMaterial', 'ngAnimate', 'ui.router'])
     var callbacks = [];
 
     function update() {
-      console.log("Setting selection to " + selected);
       for(var i = 0; i < callbacks.length; i++) {
         callbacks[i](selected);
       }
