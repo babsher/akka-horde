@@ -25,7 +25,7 @@ class ProductionAgentSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
   })
   val actorRef = TestActorRef(new ProductionAgent(envRef, self))
 
-  "Production Agent " must {
+  "Production Agent" must {
     "will send root new Agent" in {
       val msg = NewAgent(droneRef, self, "Drone", Option(1))
       actorRef ! msg

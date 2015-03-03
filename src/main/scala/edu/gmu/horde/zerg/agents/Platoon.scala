@@ -56,19 +56,19 @@ class Platoon(val envRef: ActorRef) extends Actor with LoggingFSM[Platoon.States
   override def states = Start :: Moving :: Attacking :: Idle :: Nil
 
   from(Start) {
-    To(Idle) :: Nil
+    Idle :: Nil
   }
 
   from(Moving) {
-    To(Attacking) :: To(Idle) :: Nil
+    Attacking :: Idle :: Nil
   }
 
   from(Attacking) {
-    To(Moving) :: To(Idle) :: Nil
+    Moving :: Idle :: Nil
   }
 
   from(Idle) {
-    To(Moving) :: To(Attacking) :: Nil
+    Moving :: Attacking :: Nil
   }
 
   initialize

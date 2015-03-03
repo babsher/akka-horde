@@ -13,13 +13,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
- * A simple extension of Akka's <code>FSM</code>.  In this class, state transitions can be defined with the
- * <code>from</code> state and <code>to</code> state constructs.
- * <p>
- * Note that <code>Function1</code> can be replaced with <code>PartialFunction</code>.
- *
- * @param S denotes the user specified state, e.g. Initialized, Started
- * @param D denotes the user specified data model
  */
 trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with Messages {
   var attributeStore: ActorRef = _
@@ -39,12 +32,10 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
     yield (state -> c)) toMap
   }
 
-  case class To(state: S)
-
   // tells agent to do compute its next action
   case class ActionTimeout()
 
-  def from(fromState: S)(toStates: Seq[To]) {
+  def from(fromState: S)(toStates: Seq[S]) {
     when(fromState) {
       case Event(SetEnvironment(ref), _) =>
         env = ref
@@ -75,18 +66,20 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
         stay
 
       case Event(RequestAgentDetail, _) =>
-        val stateStrings = states.map(s => 
-          AgentPossibleStates(s.name, s equals fromState, isCurrentState(s)))
-        sender ! AgentDetail(self, getType, currentState, stateStrings, features(fromState))
+        val possibleStates = states.map(s =>
+          AgentPossibleStates(s.name,
+            (toStates contains s) || isCurrentState(s),
+            isCurrentState(s)))
+        sender ! AgentDetail(self, getType, currentState, possibleStates, features(fromState))
         stay
 
       case Event(stateMsg: StateMsg, _) =>
         if(training) {
           states.find(_.name == stateMsg.state) match {
             case Some(nextState) =>
-              toStates.find(_.state == nextState) match {
+              toStates.find(_ == nextState) match {
                 case Some(toState) =>
-                  store(fromState, toState.state)
+                  store(fromState, toState)
                   goto(nextState)
                 case None =>
                   log.warning("Not a valid state transition to {} from {}", nextState, fromState.name)
@@ -127,15 +120,15 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
     sender ! currentState
   }
 
-  def getNextState(currState: S, toStates: Seq[To]): S = {
+  def getNextState(currState: S, toStates: Seq[S]): S = {
     val f = features(currState)
     val state = classify(currState, f)
-    val s = toStates.filter(x => x.state.name equals state)
+    val s = toStates.filter(_.name equals state)
     if (s.isEmpty) {
       log.debug("No state matching {} in toStates: {}", state, toStates)
       return currState
     } else {
-      return s(0).state
+      return s(0)
     }
   }
 

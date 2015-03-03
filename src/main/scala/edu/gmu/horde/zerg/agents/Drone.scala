@@ -87,22 +87,25 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   startWith(Drone.Start, Drone.Uninitialized)
 
   from(Drone.Idle) {
-    To(Drone.Build) :: To(Drone.Harvest) :: Nil
+    Drone.Build :: Drone.Harvest :: Nil
   }
 
   from(Drone.Start) {
-    To(Drone.Attacking) :: To(Drone.Harvest) :: To(Drone.Build) :: Nil
+    Drone.Idle ::
+    Drone.Attacking ::
+    Drone.Harvest ::
+    Drone.Build :: Nil
   }
 
   from(Drone.Harvest) {
-    To(Drone.Attacking) :: To(Drone.Build) :: Nil
+    Drone.Attacking :: Drone.Build :: Nil
   }
 
   from(Drone.Attacking) {
-    To(Drone.Harvest) :: To(Drone.Build) :: Nil
+    Drone.Harvest :: Drone.Build :: Nil
   }
   from(Drone.Build) {
-    To(Drone.Idle) :: Nil
+    Drone.Idle :: Nil
   }
   initialize
 
@@ -111,7 +114,7 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
 
   def startAction(): Unit = {
-      goto(Harvest)
+    goto(Harvest)
   }
 
   private def buildAction(): Unit = {
@@ -133,7 +136,7 @@ class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAge
   }
 
   def getAction(state: Drone.States): Action = state match {
-    case Start =>     Action(() => {startAction()}, () => {}, () => {})
+    case Start =>     Action(() => {}, () => {startAction()}, () => {})
     case Harvest =>   Action(() => {harvestAction()}, () => {}, () => {})
     case Attacking => Action(() => {attackAction()}, () => {}, () => {})
     case Build =>     Action(() => {buildAction()}, () => {}, () => {})
