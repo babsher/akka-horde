@@ -40,9 +40,9 @@ class HordeFSM extends Actor with LoggingFSM[HordeFSMState, HordeFSMData] with M
       stay
     case Event(Scenario(name), Uninitialized) =>
       logger.debug("Setting up Scenario {}", name)
-      root = context.actorOf(Props[Root], "root")
-      env = context.actorOf(Props[ZergEnvironment], "env")
       store = context.actorOf(AttributeStore.props(name), "store")
+      root = context.actorOf(Root.props(store), "root")
+      env = context.actorOf(Props[ZergEnvironment], "env")
       root ! SetEnvironment(env)
       env ! SetRoot(root)
       stay

@@ -3,7 +3,7 @@
 angular.module('app')
   .controller('LeftCtrl', function ($scope, $http, $log, $interval, agentSelection) {
     function updateState(state) {
-      console.log("Updating state to " + state);
+      //console.log("Updating state to " + state);
       if ("Running" === state) {
         $scope.start = true;
       } else if ("Stopped" === state) {

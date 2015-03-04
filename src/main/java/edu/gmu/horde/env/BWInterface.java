@@ -163,7 +163,7 @@ public class BWInterface {
         @Override
         public void unitCreate(int unitID) {
             Unit u = bwapi.getUnit(unitID);
-            if(bwapi.getSelf().equals(u.getPlayer())) {
+            if(bwapi.getSelf().equals(u.getPlayer()) && !bwInterface.units.containsKey(unitID)) {
                 log.debug("Created {} at {}", u.getType().getName(), u.getPosition());
                 bwInterface.units.put(unitID, u);
                 bwInterface.newUnits.add(unitID);

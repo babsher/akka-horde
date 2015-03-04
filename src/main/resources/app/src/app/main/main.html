@@ -10,9 +10,13 @@
             <h3>{{agent.name}}</h3>
             <p>Type: {{agent.agentType}}</p>
             <p>Current State: {{agent.currentState.state}}</p>
+            <md-checkbox ng-model="agent.train" class="md-warn" ng-click="setTrain(agent.name, !agent.train)">
+              Is Training
+            </md-checkbox>
             <section class="stateButton" layout="row" layout-sm="column" layout-align="center center">
               <md-button  ng-repeat="state in agent.states track by state.state"
                          ng-disabled="!state.nextState"
+                         ng-click="setState(agent.name, state.state)"
                          class="md-raised">
                 {{state.state}}
               </md-button>

@@ -17,13 +17,19 @@ class ProductionAgentSpec extends TestKit(ActorSystem("TestKitUsageSpec"))
   with BeforeAndAfterAll
   with MockitoSugar {
 
+  val storeRef = TestActorRef(new Actor {
+    def receive = {
+      case default =>
+    }
+  })
+
   val envRef = TestActorRef[ZergEnvironment]
   val droneRef = TestActorRef(new Actor {
     def receive = {
       case "hello" => throw new IllegalArgumentException("boom")
     }
   })
-  val actorRef = TestActorRef(new ProductionAgent(envRef, self))
+  val actorRef = TestActorRef(new ProductionAgent(envRef, self, storeRef))
 
   "Production Agent" must {
     "will send root new Agent" in {

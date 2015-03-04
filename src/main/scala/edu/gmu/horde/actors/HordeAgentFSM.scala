@@ -15,10 +15,10 @@ import scala.concurrent.duration._
 /**
  */
 trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with Messages {
-  var attributeStore: ActorRef = _
+  val attributeStore: ActorRef
   var store: Map[S, ActorRef] = Map()
   var training = false
-  var env: ActorRef
+  val env: ActorRef
   // create target attribute
   val targetAttribute = "nextState"
   val target = new Attribute(targetAttribute)
@@ -38,11 +38,8 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
 
   def from(fromState: S)(toStates: Seq[S]) {
     when(fromState) {
-      case Event(SetEnvironment(ref), _) =>
-        env = ref
-        stay
-
       case Event(Train(train), _) =>
+        log.debug("Setting {} to train: {}", self, train)
         training = train
         if (training) {
           cancelTimer("action")
@@ -62,16 +59,12 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
           goto(nextState)
         }
 
-      case Event(SetAttributeStore(storeActor: ActorRef), _) =>
-        attributeStore = storeActor
-        stay
-
       case Event(RequestAgentDetail, _) =>
         println("States " + states)
         val possibleStates = for(s <- states) yield
           AgentPossibleStates(s.name, (toStates contains s) || isCurrentState(s), isCurrentState(s))
         println("Possibles states " + possibleStates)
-        sender ! AgentDetail(self, getType, currentState, possibleStates, features(fromState))
+        sender ! AgentDetail(self, training, getType, currentState, possibleStates, features(fromState))
         stay
 
       case Event(stateMsg: StateMsg, _) =>
@@ -81,11 +74,14 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
               toStates.find(_ == nextState) match {
                 case Some(toState) =>
                   store(fromState, toState)
+                  sender ! stateMsg
                   goto(nextState)
                 case None =>
+                  sender ! StateMsg("ERROR")
                   log.warning("Not a valid state transition to {} from {}", nextState, fromState.name)
               }
             case None =>
+              sender ! StateMsg("ERROR")
               log.warning("Not a valid state {} ", stateMsg)
           }
         } else {
@@ -151,6 +147,7 @@ trait HordeAgentFSM[S <: AgentState, D] extends FSM[S, D] with AttributeIO with 
   }
 
   def store(fromState: S, toState: S): Unit = {
+    log.debug("Recording state transition {}=>{}", fromState, toState)
     val storeActor = if (!store.contains(fromState)) {
       val attr = Seq(target) ++ attributes(fromState)
       val future = ask(attributeStore, NewAttributeStore(agentName, fromState, attr))(5 second)

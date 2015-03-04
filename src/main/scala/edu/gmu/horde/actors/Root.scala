@@ -1,10 +1,14 @@
 package edu.gmu.horde.actors
 
-import akka.actor.{ActorLogging, Actor, ActorRef}
+import akka.actor.{Props, ActorLogging, Actor, ActorRef}
 import edu.gmu.horde._
 import edu.gmu.horde.zerg.agents.{MilitaryAgent, ProductionAgent}
 
-class Root extends Actor with ActorLogging with Messages {
+object Root {
+  def props(store: ActorRef): Props = Props(new Root(store))
+}
+
+class Root(val store: ActorRef) extends Actor with ActorLogging with Messages {
 
   case class Agent(ref: ActorRef, parent: ActorRef, typeName: String, unitId: Option[Int])
   
@@ -37,8 +41,8 @@ class Root extends Actor with ActorLogging with Messages {
   }
 
   def createManagers(connect :Boolean) :Unit = {
-    miliatry = context.actorOf(MilitaryAgent.props(env), "military")
-    production = context.actorOf(ProductionAgent.props(env, context.self), "production")
+    miliatry = context.actorOf(MilitaryAgent.props(env, store), "military")
+    production = context.actorOf(ProductionAgent.props(env, context.self, store), "production")
     val set = SetManagers(production, miliatry)
     production ! set
     miliatry ! set

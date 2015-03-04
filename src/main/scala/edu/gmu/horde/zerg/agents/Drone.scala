@@ -69,14 +69,13 @@ object Drone {
 
   trait Features
   case object Uninitialized extends Features
-  def props(id: Int, unit: BUnit, env: ActorRef): Props = Props(new Drone(id, unit, env))
+  def props(id: Int, unit: BUnit, env: ActorRef, store: ActorRef): Props = Props(new Drone(id, unit, env, store))
   def id(id: Int): String = { "Drone-" + id}
 }
 
-class Drone(val id: Int, var unit: BUnit, val envRef: ActorRef) extends HordeAgentFSM[Drone.States, Drone.Features]
+class Drone(val id: Int, var unit: BUnit, override val env: ActorRef, override val attributeStore: ActorRef) extends HordeAgentFSM[Drone.States, Drone.Features]
   with LoggingFSM[Drone.States, Drone.Features] {
 
-  override var env: ActorRef = envRef
   env ! Subscribe(id, this.context.self)
   log.debug("Created drone {}", id)
 

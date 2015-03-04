@@ -45,10 +45,10 @@ object Platoon {
   trait Features
   case object Uninitialized extends Features
   case object MoveTarget extends Features
+  def props(env: ActorRef, store: ActorRef): Props = Props(new Platoon(env, store))
 }
 
-class Platoon(val envRef: ActorRef) extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
-  override var env: ActorRef = envRef
+class Platoon(override val env: ActorRef, override val attributeStore: ActorRef) extends Actor with LoggingFSM[Platoon.States, Platoon.Features] with HordeAgentFSM[Platoon.States, Platoon.Features] {
   import Platoon._
 
   startWith(Start, Uninitialized)

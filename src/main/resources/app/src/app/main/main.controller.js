@@ -23,6 +23,20 @@ angular.module('app')
         }
       }
 
+      $scope.setTrain = function(agent, train) {
+        $http.post('/api/train/' + window.btoa(agent), {train: train}).
+          success(function(data){
+            console.log("Train set to ", data);
+          });
+      };
+
+      $scope.setState = function(agent, state) {
+        $http.post('/api/agent/' + window.btoa(agent), {state: state}).
+          success(function(data){
+            console.log("set state to ", data);
+          });
+      };
+
       function update() {
         var promises = [];
         for(var i = 0; i < selected.length; i++) {
@@ -32,7 +46,6 @@ angular.module('app')
           $scope.agents = data.map(function(el){
             return el.data;
           });
-          $log.debug($scope.agents);
         }, function(reason) {
           $log.debug('Failed: ', reason);
         });
@@ -42,7 +55,7 @@ angular.module('app')
       $interval(update, 1000);
 
       agentSelection.addCallback(function(sel){
-        console.log("Setting selection to " + selected);
+        //console.log("Setting selection to " + selected);
         selected = sel;
         update();
       });

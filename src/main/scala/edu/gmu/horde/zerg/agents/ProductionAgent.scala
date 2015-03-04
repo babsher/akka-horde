@@ -8,14 +8,15 @@ import jnibwapi.types.UnitType
 import jnibwapi.types.UnitType.UnitTypes
 
 object ProductionAgent {
-  def props(env :ActorRef, root: ActorRef) = Props(new ProductionAgent(env, root))
+  def props(env :ActorRef, root: ActorRef, store: ActorRef) = Props(new ProductionAgent(env, root, store))
 }
 
-class ProductionAgent(val env :ActorRef,val root: ActorRef) extends Actor with ActorLogging {
+class ProductionAgent(val env :ActorRef,val root: ActorRef, val store: ActorRef) extends Actor with ActorLogging {
   var military :ActorRef = null
   var larva :Seq[Int] = Seq[Int]()
   var supply = 0
   var totalSupply = 0
+  var baseMgr: ActorRef = null
 
   override def receive: Receive = {
     case SetManagers(production: ActorRef, military: ActorRef) =>
@@ -63,6 +64,9 @@ class ProductionAgent(val env :ActorRef,val root: ActorRef) extends Actor with A
   }
 
   def getBaseAgent(pos: Position): ActorRef = {
-    context.actorOf(BaseManagerAgent.props(env, root))
+    if(baseMgr == null) {
+      baseMgr = context.actorOf(BaseManagerAgent.props(env, root, store), "BaseMgr")
+    }
+    return baseMgr
   }
 }

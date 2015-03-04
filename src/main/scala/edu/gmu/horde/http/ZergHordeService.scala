@@ -43,8 +43,15 @@ trait ZergHordeService extends Protocols {
           }
         } ~
         pathPrefix("agent") {
-          (get & path(Segment)) { id =>
-            complete((getActorPath(id) ? RequestAgentDetail).mapTo[AgentDetail])
+          path(Segment) { id =>
+            get {
+              complete((getActorPath(id) ? RequestAgentDetail).mapTo[AgentDetail])
+            } ~
+            post {
+              entity(as[State]) { state =>
+                complete((getActorPath(id) ? state).mapTo[State])
+              }
+            }
           }
         } ~
         pathPrefix("train") {

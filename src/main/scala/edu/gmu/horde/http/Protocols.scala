@@ -25,7 +25,7 @@ trait Protocols extends DefaultJsonProtocol with SprayJsonSupport {
     }
   }
   implicit val agentPossibleStatesFormat = jsonFormat3(AgentPossibleStates.apply)
-  implicit val agentDetailFormat = jsonFormat5(AgentDetail.apply)
+  implicit val agentDetailFormat = jsonFormat6(AgentDetail.apply)
   implicit val runFormat = jsonFormat1(Run.apply)
   implicit val hordeStateFormat = jsonFormat3(HordeState.apply)
 }

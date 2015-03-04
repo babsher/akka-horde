@@ -24,6 +24,12 @@ with Messages {
     }
   })
 
+  val storeRef = TestActorRef(new Actor {
+    def receive = {
+      case default =>
+    }
+  })
+
   val player = mock[jnibwapi.Player]
   when(player.isSelf).thenReturn(true)
 
@@ -34,7 +40,7 @@ with Messages {
   when(unit.getType).thenReturn(UnitType.UnitTypes.Zerg_Drone)
 
   "Drone Agent" must {
-    val droneRef = system.actorOf(Drone.props(unitId, unit, envRef))
+    val droneRef = system.actorOf(Drone.props(unitId, unit, envRef, storeRef))
 
     "return agent detail when requested" in {
       droneRef ! RequestAgentDetail
@@ -46,7 +52,7 @@ with Messages {
         AgentPossibleStates("Harvest",  false, false) ::
         AgentPossibleStates("Retreat",  false, false) :: Nil
       expectMsg(
-        AgentDetail(droneRef, "Drone$",
+        AgentDetail(droneRef, false, "Drone$",
         State("Start"),
         possibleStates,
         Map("TrueFeature" -> DoubleValue(1))))

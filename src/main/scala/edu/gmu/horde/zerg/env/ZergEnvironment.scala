@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+import scala.collection.mutable.Set
 
 object ZergEnvironment {
   val log = LoggerFactory.getLogger(ZergEnvironment.getClass())
@@ -61,10 +62,13 @@ class ZergEnvironment extends Environment {
         }
         context.system.scheduler.schedule(1 seconds, 100 milliseconds, context.self, OnFrame)
       case OnFrame =>
+        val ids: Set[Int] = Set()
         while (!game.newUnits.isEmpty()) {
           val id = game.newUnits.remove()
-          log.debug("Found new units: {}", id)
-          root ! NewUnit(id, game.units.get(id))
+          if(!ids.contains(id)) {
+            log.debug("Found new units: {}", id)
+            root ! NewUnit(id, game.units.get(id))
+          }
         }
         root ! Supply(game.currentSupply.get(), game.supplyCap.get())
         root ! OnFrame
