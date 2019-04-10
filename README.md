@@ -1,6 +1,6 @@
 # Zerg Horde (AKA Akka Horde)
 
-## Required Software 
+## Required Software
 
 * java 7 (http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 * sbt (http://www.scala-sbt.org/)
